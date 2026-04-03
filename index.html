@@ -957,6 +957,19 @@ function setupMaster(){
   nav('overview',document.getElementById('nav-overview'));
 }
 
+// ── Client Setup ──────────────────────────────────────────────────────────────
+function setupClient(){
+  // Hide all master-only sidebar items
+  ['nav-overview','nav-clients','nav-recyclers','sec-master','sb-master-sel','ef-master-badge'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  // Emission factors table is read-only for clients — hint is already set by default
+  const hint=document.getElementById('ef-hint');
+  if(hint)hint.textContent='Emission factors are set by YCCP. Contact your admin to request a change.';
+  // Land on Dashboard
+  nav('dashboard',document.querySelector('.nav-item[onclick*=dashboard]'));
+}
+
 async function loadAllData(){
   const snap=await getDocs(collection(db,'organisations'));
   S.allOrgs=snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -981,6 +994,7 @@ async function loadClientOrg(email){
   document.getElementById('sb-org').style.display='block';
   document.getElementById('sb-org-name').textContent=S.orgData.name;
   document.getElementById('sb-org-year').textContent='Reporting Year '+S.orgData.year;
+  setupClient();
   startSync(S.orgId);
   updateGreeting();
 }
@@ -1428,7 +1442,7 @@ window.saveClient=async function(){
   const name=document.getElementById('c-name').value.trim(),email=document.getElementById('c-email').value.trim();
   const pass=document.getElementById('c-pass').value,editId=document.getElementById('c-edit-id').value;
   const city=document.getElementById('c-city').value.trim(),state=document.getElementById('c-state').value;
-  if(!name||!email||!city||!state){alert('Name, email, city and state are required.');return;}
+  if(!name||!email){alert('Name and email are required.');return;}
   if(!editId&&!pass){alert('A temporary password is required for new accounts.');return;}
   if(!editId&&pass.length<6){alert('Password must be at least 6 characters.');return;}
   const btn=document.getElementById('save-client-btn');btn.disabled=true;btn.textContent='Saving...';
