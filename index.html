@@ -1418,7 +1418,7 @@ window.saveEntry=async function(){
       await uploadBytes(sr,S.photoFile);photoURL=await getDownloadURL(sr);
       btn.textContent='Saving entry...';
     }
-    await addDoc(collection(db,'organisations',S.orgId,'entries'),{
+    const entryData={
       consignment:cons,source,cat,treat,kg,date,
       co2:r.co2,water:r.water,trees:r.trees,factor:r.factor,standard:r.src,
       vendor:document.getElementById('e-vendor').value,
@@ -1426,10 +1426,20 @@ window.saveEntry=async function(){
       landfillReason:document.getElementById('e-lf-reason')?.value||'',
       landfillEvidence:document.getElementById('e-lf-evidence')?.value||'',
       photoURL,createdAt:Timestamp.now(),createdBy:S.user.email
-    });
+    };
+    const ref=await addDoc(collection(db,'organisations',S.orgId,'entries'),entryData);
+    // Immediately update local state so UI reflects the save without waiting for onSnapshot
+    const newEntry={id:ref.id,...entryData};
+    S.entries=[newEntry,...S.entries];
+    if(S.allEntries[S.orgId])S.allEntries[S.orgId]=[newEntry,...S.allEntries[S.orgId]];
+    else S.allEntries[S.orgId]=S.entries;
+    renderDashboard();renderEntries();renderReports();
     showToast('✓ '+cons+' saved · '+r.co2.toFixed(3)+' kg CO₂e');clearEntry();
-  }catch(e){showToast('✗ Save failed: '+e.message);}
-  finally{btn.disabled=false;btn.textContent='Save entry';}
+  }catch(e){
+    console.error('saveEntry error:',e);
+    const msg=e.code==='permission-denied'?'Permission denied — your account may not have write access. Contact your admin.':'Save failed: '+e.message;
+    alert('⚠ '+msg);showToast('✗ '+msg);
+  }finally{btn.disabled=false;btn.textContent='Save entry';}
 };
 
 window.clearEntry=function(){
@@ -1438,6 +1448,7 @@ window.clearEntry=function(){
   document.getElementById('calc-prev').style.display='none';
   document.getElementById('landfill-fields').style.display='none';
   document.getElementById('photo-prev').style.display='none';
+  const pi=document.getElementById('photo-input');if(pi)pi.value='';
   S.photoFile=null;setTodayDate();
 };
 
