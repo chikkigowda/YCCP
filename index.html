@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YCCP — Climate Capability Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --navy:#0f1729;--navy2:#162040;--navy3:#1e2d56;--navy4:#263670;
+  --amber:#f59e0b;--amber2:#fbbf24;--amberbg:rgba(245,158,11,0.1);--amberborder:rgba(245,158,11,0.25);
+  --slate:#64748b;--slate2:#94a3b8;--slate3:#cbd5e1;--slate4:#e2e8f0;--slate5:#f1f5f9;--slate6:#f8fafc;
+  --white:#ffffff;--ink:#0f172a;--ink2:#334155;--ink3:#64748b;
+  --teal:#0d9488;--tealbg:rgba(13,148,136,0.1);--tealborder:rgba(13,148,136,0.25);
+  --rose:#e11d48;--rosebg:rgba(225,29,72,0.1);--roseborder:rgba(225,29,72,0.25);
+  --violet:#7c3aed;--violetbg:rgba(124,58,237,0.1);
+  --sky:#0284c7;--skybg:rgba(2,132,199,0.1);
+  --emerald:#059669;--emeraldbg:rgba(5,150,105,0.1);--emeraldborder:rgba(5,150,105,0.25);
+  --orange:#ea580c;--orangebg:rgba(234,88,12,0.1);
+  --r:8px;--rl:14px;--rxl:20px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:0 10px 30px rgba(0,0,0,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--slate6);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.5;}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:2000;}
+.load-brand{font-family:'Fraunces',serif;font-size:32px;color:var(--white);}
+.load-brand span{color:var(--amber2);}
+.load-sub{font-size:12px;color:var(--slate2);letter-spacing:0.05em;}
+.spinner{width:32px;height:32px;border:2.5px solid rgba(255,255,255,0.1);border-top-color:var(--amber2);border-radius:50%;animation:spin 0.9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* LOGIN */
+#login{position:fixed;inset:0;background:var(--navy);display:none;z-index:1999;}
+#login.show{display:grid;grid-template-columns:1fr 1fr;}
+.login-left{padding:3rem;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(140deg,var(--navy) 0%,var(--navy3) 100%);position:relative;overflow:hidden;}
+.login-left::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(245,158,11,0.08);top:-150px;right:-150px;}
+.login-left::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid rgba(245,158,11,0.06);top:-50px;right:-50px;}
+.ll-logo{display:flex;align-items:center;gap:12px;}
+.ll-mark{width:38px;height:38px;background:var(--amber);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.ll-mark svg{width:20px;height:20px;stroke:var(--navy);fill:none;stroke-width:2.5;}
+.ll-name{font-family:'Fraunces',serif;font-size:22px;color:var(--white);font-weight:600;}
+.ll-hero h1{font-family:'Fraunces',serif;font-size:38px;color:var(--white);line-height:1.15;margin-bottom:14px;}
+.ll-hero h1 em{color:var(--amber2);font-style:italic;}
+.ll-hero p{font-size:14px;color:var(--slate2);line-height:1.75;margin-bottom:20px;}
+.ll-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.ll-tag{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--slate3);font-size:11px;padding:4px 10px;border-radius:20px;}
+.ll-footer{font-size:11px;color:var(--slate3);}
+.login-right{background:var(--white);display:flex;align-items:center;justify-content:center;padding:3rem;}
+.lf-wrap{width:100%;max-width:360px;}
+.lf-wrap h2{font-family:'Fraunces',serif;font-size:26px;margin-bottom:4px;}
+.lf-wrap>p{font-size:13px;color:var(--ink3);margin-bottom:2rem;}
+.field{margin-bottom:1rem;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;}
+.field input{width:100%;padding:10px 14px;background:var(--slate6);border:1.5px solid var(--slate4);border-radius:var(--r);color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;outline:none;transition:all 0.2s;}
+.field input:focus{border-color:var(--amber);background:var(--white);box-shadow:0 0 0 3px var(--amberbg);}
+.err-msg{background:var(--rosebg);border:1px solid var(--roseborder);color:var(--rose);padding:9px 12px;border-radius:var(--r);font-size:12px;margin-bottom:1rem;display:none;}
+.btn{padding:9px 18px;border-radius:var(--r);border:1.5px solid var(--slate4);background:var(--white);color:var(--ink2);cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--slate5);}
+.btn:active{transform:scale(0.98);}
+.btn-amber{background:var(--amber);color:var(--navy);border-color:var(--amber);font-weight:600;}
+.btn-amber:hover{background:var(--amber2);border-color:var(--amber2);}
+.btn-navy{background:var(--navy);color:var(--white);border-color:var(--navy);}
+.btn-navy:hover{background:var(--navy3);}
+.btn-teal{background:var(--tealbg);color:var(--teal);border-color:var(--tealborder);}
+.btn-rose{background:var(--rosebg);color:var(--rose);border-color:var(--roseborder);}
+.btn-emerald{background:var(--emeraldbg);color:var(--emerald);border-color:var(--emeraldborder);}
+.btn-ghost{border-color:transparent;background:transparent;color:var(--ink3);}
+.btn-ghost:hover{background:var(--slate5);color:var(--ink);}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-xs{padding:3px 9px;font-size:11px;}
+.btn-block{width:100%;justify-content:center;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* APP */
+#app{display:none;min-height:100vh;}
+#app.show{display:grid;grid-template-rows:60px 1fr;grid-template-columns:260px 1fr;}
+
+/* TOPBAR */
+.topbar{grid-column:1/-1;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:100;}
+.tb-brand{display:flex;align-items:center;gap:10px;}
+.tb-mark{width:32px;height:32px;background:var(--amber);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.tb-mark svg{width:17px;height:17px;stroke:var(--navy);fill:none;stroke-width:2.5;}
+.tb-name{font-family:'Fraunces',serif;font-size:18px;color:var(--white);font-weight:600;}
+.tb-name span{color:var(--amber2);}
+.role-tag{font-size:10px;padding:2px 9px;border-radius:20px;font-weight:600;letter-spacing:0.04em;}
+.rt-master{background:rgba(245,158,11,0.2);color:var(--amber2);border:1px solid rgba(245,158,11,0.3);}
+.rt-edu{background:rgba(2,132,199,0.2);color:#38bdf8;border:1px solid rgba(2,132,199,0.3);}
+.rt-org{background:rgba(124,58,237,0.2);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);}
+.rt-recycler{background:rgba(13,148,136,0.2);color:#2dd4bf;border:1px solid rgba(13,148,136,0.3);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-user{display:flex;align-items:center;gap:8px;}
+.user-av{width:30px;height:30px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--navy);}
+.user-info .uname{font-size:12px;color:var(--white);font-weight:500;}
+.user-info .urole{font-size:10px;color:var(--slate2);}
+.db-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:4px 10px;border-radius:20px;font-size:11px;color:var(--slate2);}
+.db-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;}
+.db-dot.off{background:var(--rose);animation:none;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.btn-logout{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--slate3);padding:5px 12px;border-radius:var(--r);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.15s;}
+.btn-logout:hover{background:rgba(255,255,255,0.12);}
+
+/* SIDEBAR */
+.sidebar{background:var(--white);border-right:1px solid var(--slate4);overflow-y:auto;padding:1rem 0;}
+.sb-org{margin:0 1rem 1rem;padding:10px 12px;background:var(--slate6);border:1px solid var(--slate4);border-radius:var(--r);}
+.sb-org-name{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-org-year{font-size:11px;color:var(--ink3);}
+.sb-master-sel{padding:0 1rem;margin-bottom:8px;}
+.sb-master-sel select{width:100%;padding:7px 10px;background:var(--slate6);border:1.5px solid var(--slate4);border-radius:var(--r);color:var(--ink);font-family:'Outfit',sans-serif;font-size:12px;outline:none;cursor:pointer;transition:border-color 0.2s;}
+.sb-master-sel select:focus{border-color:var(--amber);}
+.sb-sect{font-size:10px;font-weight:700;color:var(--slate3);letter-spacing:0.1em;text-transform:uppercase;padding:0 1.25rem;margin:1.1rem 0 3px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 1.25rem;font-size:13px;color:var(--ink3);cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;}
+.nav-item:hover{color:var(--ink);background:var(--slate6);}
+.nav-item.active{color:var(--navy);border-left-color:var(--amber);background:var(--amberbg);font-weight:500;}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;}
+.nav-lock{opacity:0.35;pointer-events:none;}
+.nav-pill{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600;background:var(--amberbg);color:var(--amber);}
+
+/* MAIN */
+.main{background:var(--slate6);overflow-y:auto;}
+.page{display:none;padding:1.75rem;}
+.page.active{display:block;}
+.page-hdr{margin-bottom:1.5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.page-hdr-l h2{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.page-hdr-l p{font-size:13px;color:var(--ink3);}
+.page-hdr-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--slate4);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.card-title{font-size:14px;font-weight:600;color:var(--ink);}
+.card-sub{font-size:12px;color:var(--ink3);}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
+.kpi{background:var(--white);border:1px solid var(--slate4);border-radius:var(--rl);padding:1.1rem 1.25rem;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--rl) var(--rl) 0 0;}
+.kpi.amber::after{background:var(--amber);}
+.kpi.teal::after{background:var(--teal);}
+.kpi.emerald::after{background:var(--emerald);}
+.kpi.sky::after{background:var(--sky);}
+.kpi.violet::after{background:var(--violet);}
+.kpi.rose::after{background:var(--rose);}
+.kpi.orange::after{background:var(--orange);}
+.kpi-label{font-size:11px;color:var(--ink3);margin-bottom:6px;}
+.kpi-val{font-family:'Fraunces',serif;font-size:26px;font-weight:600;line-height:1;color:var(--ink);margin-bottom:3px;}
+.kpi-unit{font-size:11px;color:var(--slate3);}
+.kpi-trend{font-size:11px;margin-top:4px;font-weight:500;}
+.kpi-trend.up{color:var(--emerald);}
+.kpi-trend.down{color:var(--rose);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;border:1px solid transparent;}
+.badge-teal{background:var(--tealbg);color:var(--teal);border-color:var(--tealborder);}
+.badge-rose{background:var(--rosebg);color:var(--rose);border-color:var(--roseborder);}
+.badge-amber{background:var(--amberbg);color:var(--amber);border-color:var(--amberborder);}
+.badge-emerald{background:var(--emeraldbg);color:var(--emerald);border-color:var(--emeraldborder);}
+.badge-sky{background:var(--skybg);color:var(--sky);}
+.badge-violet{background:var(--violetbg);color:var(--violet);}
+.badge-slate{background:var(--slate5);color:var(--slate);border-color:var(--slate4);}
+
+/* TABLES */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--slate4);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{background:var(--slate6);}
+th{text-align:left;padding:9px 14px;font-size:10px;font-weight:700;color:var(--ink3);border-bottom:1px solid var(--slate4);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--slate4);color:var(--ink);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--slate6);}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.form-full{grid-column:1/-1;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:11px;font-weight:600;color:var(--ink2);letter-spacing:0.05em;text-transform:uppercase;}
+.fg label .req{color:var(--rose);}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;background:var(--slate6);border:1.5px solid var(--slate4);border-radius:var(--r);color:var(--ink);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:all 0.2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--amber);background:var(--white);box-shadow:0 0 0 3px var(--amberbg);}
+.fg select option{background:var(--white);}
+.fg textarea{resize:vertical;min-height:70px;}
+.fg .hint{font-size:11px;color:var(--ink3);}
+.form-section-title{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px;border-bottom:2px solid var(--amberbg);margin-bottom:2px;grid-column:1/-1;}
+
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:1rem;border:1px solid transparent;display:flex;align-items:flex-start;gap:8px;}
+.alert svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;}
+.alert-info{background:var(--skybg);color:var(--sky);border-color:rgba(2,132,199,0.2);}
+.alert-warn{background:var(--amberbg);color:#92400e;border-color:var(--amberborder);}
+.alert-success{background:var(--emeraldbg);color:var(--emerald);border-color:var(--emeraldborder);}
+.alert-danger{background:var(--rosebg);color:var(--rose);border-color:var(--roseborder);}
+.alert-navy{background:rgba(15,23,41,0.05);color:var(--navy);border-color:rgba(15,23,41,0.15);}
+
+.divider{height:1px;background:var(--slate4);margin:1.25rem 0;}
+.empty{text-align:center;padding:3rem 1rem;color:var(--ink3);font-size:13px;}
+.empty svg{width:36px;height:36px;stroke:var(--slate3);fill:none;stroke-width:1;margin:0 auto 10px;display:block;}
+.lock-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--amberbg);color:#92400e;border:1px solid var(--amberborder);border-radius:var(--r);font-size:13px;margin-bottom:1rem;}
+
+/* PROGRESS */
+.prog-bar{height:6px;background:var(--slate4);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--amber2));border-radius:3px;transition:width 0.5s;}
+.prog-fill.teal{background:linear-gradient(90deg,var(--teal),#2dd4bf);}
+.prog-fill.emerald{background:linear-gradient(90deg,var(--emerald),#34d399);}
+
+/* FILTER ROW */
+.filter-row{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;}
+.filter-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--slate4);background:var(--white);font-size:12px;font-weight:500;color:var(--ink3);cursor:pointer;transition:all 0.15s;font-family:'Outfit',sans-serif;}
+.filter-btn:hover,.filter-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy);}
+.filter-sel{padding:6px 12px;border:1.5px solid var(--slate4);border-radius:20px;background:var(--white);font-family:'Outfit',sans-serif;font-size:12px;color:var(--ink);outline:none;cursor:pointer;transition:border-color 0.2s;}
+.filter-sel:focus{border-color:var(--amber);}
+
+/* CHARTS */
+.chart-wrap{position:relative;width:100%;}
+.h180{height:180px;} .h220{height:220px;} .h260{height:260px;}
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1rem;}
+
+/* DASHBOARD SPECIFIC */
+.dash-greeting{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);border-radius:var(--rl);padding:1.5rem 1.75rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-md);}
+.dg-left h2{font-family:'Fraunces',serif;font-size:22px;color:var(--white);margin-bottom:4px;}
+.dg-left p{font-size:13px;color:var(--slate2);}
+.dg-right{text-align:right;}
+.dg-date{font-size:12px;color:var(--slate2);}
+.dg-hero{font-family:'Fraunces',serif;font-size:36px;color:var(--amber2);font-weight:600;line-height:1;}
+.dg-hero-lbl{font-size:11px;color:var(--slate3);margin-top:2px;}
+
+.alert-card{border-radius:var(--rl);padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;font-size:12px;border:1px solid transparent;}
+.ac-urgent{background:var(--rosebg);color:var(--rose);border-color:var(--roseborder);}
+.ac-warn{background:var(--amberbg);color:#92400e;border-color:var(--amberborder);}
+.ac-ok{background:var(--emeraldbg);color:var(--emerald);border-color:var(--emeraldborder);}
+.ac-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ac-urgent .ac-dot{background:var(--rose);}
+.ac-warn .ac-dot{background:var(--amber);}
+.ac-ok .ac-dot{background:var(--emerald);}
+
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--slate4);}
+.activity-item:last-child{border-bottom:none;}
+.ai-icon{width:30px;height:30px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ai-icon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;}
+.ai-content{flex:1;min-width:0;}
+.ai-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.ai-sub{font-size:11px;color:var(--ink3);}
+.ai-time{font-size:10px;color:var(--slate3);flex-shrink:0;}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--slate4);border-radius:var(--rl);padding:1.25rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--slate6);}
+.upload-zone:hover{border-color:var(--amber);background:var(--amberbg);}
+.upload-zone svg{width:28px;height:28px;stroke:var(--slate3);fill:none;stroke-width:1.5;margin:0 auto 6px;display:block;}
+.upload-zone p{font-size:12px;color:var(--ink3);}
+.upload-zone input{display:none;}
+.photo-prev{width:100%;max-height:180px;object-fit:cover;border-radius:var(--r);margin-top:8px;display:none;}
+
+/* CALC PREVIEW */
+.calc-prev{background:linear-gradient(135deg,var(--amberbg),var(--emeraldbg));border:1px solid var(--amberborder);border-radius:var(--rl);padding:14px 16px;margin-top:10px;display:none;}
+.calc-grid{display:flex;gap:20px;flex-wrap:wrap;}
+.calc-item label{font-size:10px;font-weight:600;color:var(--ink3);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em;}
+.calc-item .val{font-family:'Fraunces',serif;font-size:18px;font-weight:600;}
+
+/* SNAP PREVIEW */
+.snap-preview{background:var(--navy);border-radius:var(--rl);padding:2rem;color:var(--white);}
+.sp-logo{font-size:11px;color:var(--amber2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+.sp-title{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:4px;}
+.sp-org{font-size:14px;color:var(--slate2);}
+.sp-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.25rem 0;text-align:center;}
+.sp-kpi-val{font-family:'Fraunces',serif;font-size:18px;font-weight:600;}
+.sp-kpi-lbl{font-size:10px;color:var(--slate2);margin-top:2px;}
+.sp-divider{height:1px;background:rgba(255,255,255,0.1);margin:1rem 0;}
+.sp-footer{font-size:10px;color:var(--slate3);text-align:center;}
+
+/* REPORTS PAGE */
+.report-card{background:var(--white);border:1px solid var(--slate4);border-radius:var(--rl);padding:1.5rem;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:1rem;}
+.rc-icon{width:48px;height:48px;border-radius:var(--rl);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rc-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;}
+.rc-content{flex:1;}
+.rc-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.rc-desc{font-size:12px;color:var(--ink3);margin-bottom:12px;line-height:1.6;}
+.rc-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,41,0.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:500;padding:1rem;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--white);border-radius:var(--rxl);padding:2rem;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal.modal-sm{max-width:440px;}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.modal-hdr h3{font-family:'Fraunces',serif;font-size:20px;font-weight:600;}
+.modal-close{width:30px;height:30px;border-radius:50%;background:var(--slate5);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:18px;line-height:1;}
+.modal-close:hover{background:var(--slate4);}
+
+/* EF TABLE */
+.ef-neg{color:var(--emerald);font-weight:600;}
+.ef-pos{color:var(--rose);font-weight:600;}
+.ef-na{color:var(--slate3);}
+.ef-editable{cursor:pointer;border-bottom:1px dashed var(--slate3);transition:color 0.15s;}
+.ef-editable:hover{color:var(--amber);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:12px 18px;border-radius:var(--rl);font-size:13px;box-shadow:var(--shadow-lg);transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:9999;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* VERIFIER BANNER */
+.verifier-banner{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:var(--rl);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
+.vb-left h3{font-family:'Fraunces',serif;font-size:16px;color:var(--white);margin-bottom:4px;}
+.vb-left p{font-size:12px;color:var(--slate2);}
+.vb-link{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:var(--slate3);padding:8px 14px;border-radius:var(--r);font-size:12px;font-family:monospace;flex:1;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+@media(max-width:960px){
+  #login.show{grid-template-columns:1fr;}
+  .login-left{display:none;}
+  #app.show{grid-template-columns:1fr;grid-template-rows:60px 1fr;}
+  .sidebar{display:none;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}
+  .form-grid,.form-grid-3{grid-template-columns:1fr;}
+  .chart-grid-2{grid-template-columns:1fr;}
+  .sp-kpis{grid-template-columns:1fr;}
+  .dash-greeting{flex-direction:column;gap:12px;}
+  .dg-right{text-align:left;}
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="load-brand">YCCP<span>.</span></div>
+  <div class="spinner"></div>
+  <div class="load-sub">Climate Capability Platform · Yujir Planet Competencies</div>
+</div>
+
+<div id="login">
+  <div class="login-left">
+    <div class="ll-logo">
+      <div class="ll-mark"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div class="ll-name">YCCP</div>
+    </div>
+    <div class="ll-hero">
+      <h1>Track waste.<br><em>Prove impact.</em><br>Build trust.</h1>
+      <p>India's purpose-built platform for BRSR-aligned waste intelligence, emissions tracking, and sustainability reporting for every kind of organisation.</p>
+      <div class="ll-tags">
+        <span class="ll-tag">BRSR Aligned</span>
+        <span class="ll-tag">GHG Protocol</span>
+        <span class="ll-tag">MoEFCC CEF 2023</span>
+        <span class="ll-tag">Carbon Credit Ready</span>
+        <span class="ll-tag">DPDP Act 2023</span>
+      </div>
+    </div>
+    <div class="ll-footer">© 2025 Yujir Planet Competencies · Confidential & Proprietary</div>
+  </div>
+  <div class="login-right">
+    <div class="lf-wrap">
+      <h2>Welcome back</h2>
+      <p>Sign in to your YCCP account</p>
+      <div class="err-msg" id="login-err"></div>
+      <div class="field"><label>Email address</label><input type="email" id="l-email" placeholder="you@organisation.in" autocomplete="email"></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn btn-amber btn-block" id="login-btn" onclick="doLogin()">Sign in to YCCP</button>
+      <p style="font-size:11px;color:var(--ink3);margin-top:12px;text-align:center">Secure · Data stored in India · DPDP Act 2023 compliant</p>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-mark"><svg viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div class="tb-name">YCC<span>P</span></div>
+      <span class="role-tag" id="role-tag" style="display:none"></span>
+    </div>
+    <div class="tb-right">
+      <div class="db-pill"><div class="db-dot" id="db-dot"></div><span id="db-lbl">Live</span></div>
+      <div class="tb-user">
+        <div class="user-av" id="user-av">?</div>
+        <div class="user-info">
+          <div class="uname" id="user-name">—</div>
+          <div class="urole" id="user-role-lbl">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sb-org" id="sb-org" style="display:none">
+      <div class="sb-org-name" id="sb-org-name">—</div>
+      <div class="sb-org-year" id="sb-org-year">—</div>
+    </div>
+    <div class="sb-master-sel" id="sb-master-sel" style="display:none">
+      <select id="org-select" onchange="switchOrg()">
+        <option value="">— All organisations —</option>
+      </select>
+    </div>
+
+    <div class="sb-sect" id="sec-master" style="display:none">Master Admin</div>
+    <div class="nav-item" id="nav-overview" style="display:none" onclick="nav('overview',this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>All Organisations
+    </div>
+    <div class="nav-item" id="nav-clients" style="display:none" onclick="nav('clients',this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Manage Clients
+    </div>
+    <div class="nav-item" id="nav-recyclers" style="display:none" onclick="nav('recyclers',this)">
+      <svg viewBox="0 0 24 24"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-5.09"/></svg>Processors & Recyclers
+    </div>
+
+    <div class="sb-sect">Reporting</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+    </div>
+    <div class="nav-item" onclick="nav('entry',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Material Entry
+    </div>
+    <div class="nav-item" onclick="nav('reports',this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Reports & Exports
+    </div>
+    <div class="nav-item" onclick="nav('factors',this)">
+      <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>Emission Factors
+    </div>
+
+    <div class="sb-sect">ESG Suite</div>
+    <div class="nav-item nav-lock"><svg viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16h14V8z"/></svg>Energy Module<span class="nav-pill">Phase 2</span></div>
+    <div class="nav-item nav-lock"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Water Module<span class="nav-pill">Phase 2</span></div>
+    <div class="nav-item nav-lock"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>BRSR Full Report<span class="nav-pill">Phase 3</span></div>
+  </div>
+
+  <div class="main">
+
+    <!-- OVERVIEW (Master) -->
+    <div id="p-overview" class="page">
+      <div class="page-hdr">
+        <div class="page-hdr-l"><h2>All Organisations</h2><p>Cumulative view across all accounts</p></div>
+        <div class="page-hdr-r">
+          <select class="filter-sel" id="ov-org-filter" onchange="renderOverview()"><option value="">All organisations</option></select>
+          <button class="filter-btn active" onclick="setOvF('all',this)">All time</button>
+          <button class="filter-btn" onclick="setOvF('ytd',this)">YTD</button>
+          <button class="filter-btn" onclick="setOvF('mtd',this)">MTD</button>
+          <button class="filter-btn" onclick="setOvF('dtd',this)">Today</button>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi amber"><div class="kpi-label">Active organisations</div><div class="kpi-val" id="ov-orgs">—</div></div>
+        <div class="kpi teal"><div class="kpi-label">Total material tracked</div><div class="kpi-val" id="ov-total">—</div><div class="kpi-unit">kg</div></div>
+        <div class="kpi emerald"><div class="kpi-label">Total CO₂e avoided</div><div class="kpi-val" id="ov-co2">—</div><div class="kpi-unit">kg CO₂e</div></div>
+      </div>
+      <div class="chart-grid-2">
+        <div class="card" style="margin-bottom:0"><div class="card-hdr"><span class="card-title">Material by category (all orgs)</span></div><div class="chart-wrap h220"><canvas id="ov-cat"></canvas></div></div>
+        <div class="card" style="margin-bottom:0"><div class="card-hdr"><span class="card-title">CO₂e avoided by organisation</span></div><div class="chart-wrap h220"><canvas id="ov-org-chart"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- MANAGE CLIENTS -->
+    <div id="p-clients" class="page">
+      <div class="page-hdr">
+        <div class="page-hdr-l"><h2>Manage Clients</h2><p>All organisations, recyclers, and processors on YCCP</p></div>
+        <div class="page-hdr-r"><button class="btn btn-amber btn-sm" onclick="openClientModal()">+ Add new account</button></div>
+      </div>
+      <div class="card"><div id="clients-tbl"><div class="empty">No accounts yet.</div></div></div>
+    </div>
+
+    <!-- RECYCLERS -->
+    <div id="p-recyclers" class="page">
+      <div class="page-hdr">
+        <div class="page-hdr-l"><h2>Processors & Recyclers</h2><p>Registered material processors and recycling facilities</p></div>
+        <div class="page-hdr-r"><button class="btn btn-amber btn-sm" onclick="openRecyclerModal()">+ Register processor</button></div>
+      </div>
+      <div class="card"><div id="recyclers-tbl"><div class="empty">No processors registered yet.</div></div></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="p-dashboard" class="page active">
+      <div class="dash-greeting" id="dash-greeting">
+        <div class="dg-left">
+          <h2 id="dg-title">Good morning 👋</h2>
+          <p id="dg-sub">Loading your sustainability data...</p>
+        </div>
+        <div class="dg-right">
+          <div class="dg-date" id="dg-date">—</div>
+          <div class="dg-hero" id="dg-hero">—</div>
+          <div class="dg-hero-lbl">kg CO₂e avoided total</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:1.25rem">
+        <div>
+          <div class="filter-row">
+            <button class="filter-btn active" onclick="setDashF('all',this)">All time</button>
+            <button class="filter-btn" onclick="setDashF('ytd',this)">This year</button>
+            <button class="filter-btn" onclick="setDashF('mtd',this)">This month</button>
+            <button class="filter-btn" onclick="setDashF('dtd',this)">Today</button>
+          </div>
+          <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+            <div class="kpi teal"><div class="kpi-label">Material tracked</div><div class="kpi-val" id="k-total">—</div><div class="kpi-unit">kg</div></div>
+            <div class="kpi amber"><div class="kpi-label">Diversion rate</div><div class="kpi-val" id="k-div">—</div><div class="kpi-unit">recycled + composted</div></div>
+            <div class="kpi emerald"><div class="kpi-label">Water saved</div><div class="kpi-val" id="k-water">—</div><div class="kpi-unit">litres</div></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-hdr"><span class="card-title">Monthly material trend</span><span class="card-sub" id="trend-sub">kg tracked per month</span></div>
+            <div class="chart-wrap h180"><canvas id="dash-trend"></canvas></div>
+          </div>
+          <div class="chart-grid-2" style="margin-bottom:0">
+            <div class="card" style="margin-bottom:0"><div class="card-hdr"><span class="card-title">By category</span></div><div class="chart-wrap h180"><canvas id="dash-cat"></canvas></div></div>
+            <div class="card" style="margin-bottom:0"><div class="card-hdr"><span class="card-title">Treatment split</span></div><div class="chart-wrap h180"><canvas id="dash-treat"></canvas></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-hdr"><span class="card-title">Alerts & actions</span></div>
+            <div id="alerts-area"><div class="empty" style="padding:1rem">All clear ✓</div></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Recent activity</span></div>
+            <div id="activity-feed"><div class="empty" style="padding:1rem">No recent activity</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="p-reports" class="page">
+      <div class="page-hdr">
+        <div class="page-hdr-l"><h2>Reports & Exports</h2><p>Download, share and verify your sustainability data</p></div>
+      </div>
+
+      <div id="report-lock" class="lock-banner" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Select an organisation to generate reports.
+      </div>
+
+      <!-- Verifier link -->
+      <div class="verifier-banner" id="verifier-banner">
+        <div class="vb-left">
+          <h3>🔗 Verifier Access Link</h3>
+          <p>Share this read-only link with your auditor or carbon credit verifier. No login required.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="vb-link" id="verifier-link">Generate link below</div>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:var(--white);border-color:rgba(255,255,255,0.2)" onclick="genVerifierLink()">Generate</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:var(--white);border-color:rgba(255,255,255,0.2)" onclick="copyVerifierLink()">Copy</button>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:14px">
+        <div class="report-card">
+          <div class="rc-icon" style="background:var(--amberbg);color:var(--amber)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg></div>
+          <div class="rc-content">
+            <div class="rc-title">Annual Sustainability Snapshot (PDF)</div>
+            <div class="rc-desc">Full branded report with cover page, organisation profile, waste summary, emissions avoided, co-benefits, category breakdown, diversion analysis, and YCCP seal. Ready to attach to your annual report or BRSR disclosure.</div>
+            <div class="rc-actions">
+              <button class="btn btn-amber btn-sm" id="gen-snap-btn" onclick="generateSnapshot()">Generate PDF snapshot</button>
+              <button class="btn btn-sm btn-ghost" id="dl-snap-btn" onclick="downloadPDF()" style="display:none">Download PDF</button>
+              <span class="badge badge-slate" id="snap-status-badge">Draft</span>
+            </div>
+            <div id="snap-done-msg" style="display:none;margin-top:8px"><div class="alert alert-success" style="margin-bottom:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>Snapshot generated. Reporting year locked.</div></div>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div class="rc-icon" style="background:var(--tealbg);color:var(--teal)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <div class="rc-content">
+            <div class="rc-title">Raw Data Export (CSV / Excel)</div>
+            <div class="rc-desc">All material entries with full details — consignment numbers, categories, weights, treatment methods, emission factors used, CO₂e, water saved, trees equivalent, processor linked, and photo URLs.</div>
+            <div class="rc-actions">
+              <button class="btn btn-teal btn-sm" onclick="exportCSV()">Export CSV</button>
+              <button class="btn btn-sm btn-ghost" onclick="exportCSV()">For Excel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div class="rc-icon" style="background:var(--violetbg);color:var(--violet)"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="rc-content">
+            <div class="rc-title">Verification Report (Carbon Credit Ready)</div>
+            <div class="rc-desc">Chain-of-custody report with consignment trail, processor certifications, photo evidence links, emission factors cited with source standards. Structured for third-party verification under GHG Protocol, Verra VCS, Gold Standard, or BIS framework.</div>
+            <div class="rc-actions">
+              <button class="btn btn-sm" style="background:var(--violetbg);color:var(--violet);border-color:rgba(124,58,237,0.25)" onclick="exportVerification()">Export Verification Report</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <div class="rc-icon" style="background:var(--skybg);color:var(--sky)"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <div class="rc-content">
+            <div class="rc-title">Verifier Share Link</div>
+            <div class="rc-desc">Generate a read-only, time-limited link to share with your external auditor or carbon credit verifier. They can view all entries and evidence without creating an account. Link expires in 30 days.</div>
+            <div class="rc-actions">
+              <button class="btn btn-sm" style="background:var(--skybg);color:var(--sky);border-color:rgba(2,132,199,0.25)" onclick="genVerifierLink()">Generate verifier link</button>
+              <button class="btn btn-sm btn-ghost" onclick="copyVerifierLink()">Copy link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Snapshot preview -->
+      <div style="margin-top:1rem">
+        <div class="snap-preview">
+          <div class="sp-logo">Yujir Planet Competencies</div>
+          <div class="sp-title">Annual Sustainability Snapshot</div>
+          <div class="sp-org" id="snap-org">Organisation</div>
+          <div style="font-size:11px;color:var(--slate3);margin-top:2px" id="snap-yr">—</div>
+          <div class="sp-divider"></div>
+          <div class="sp-kpis">
+            <div><div class="sp-kpi-val" style="color:var(--amber2)" id="snap-co2">0</div><div class="sp-kpi-lbl">kg CO₂e avoided</div></div>
+            <div><div class="sp-kpi-val" style="color:#38bdf8" id="snap-water">0</div><div class="sp-kpi-lbl">litres water saved</div></div>
+            <div><div class="sp-kpi-val" style="color:#86efac" id="snap-trees">0</div><div class="sp-kpi-lbl">trees equivalent</div></div>
+          </div>
+          <div class="sp-divider"></div>
+          <div class="sp-footer">YCCP Waste Intelligence System · Yujir Planet Competencies<br>GHG Protocol + MoEFCC CEF 2023 · Confidential & Proprietary</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATERIAL ENTRY -->
+    <div id="p-entry" class="page">
+      <div class="page-hdr">
+        <div class="page-hdr-l"><h2>New Material Entry</h2><p>Log material collected with full traceability</p></div>
+        <div class="page-hdr-r">
+          <button class="btn btn-sm btn-ghost" onclick="nav('reports',document.querySelector('[onclick*=reports]'))">View reports</button>
+        </div>
+      </div>
+      <div id="entry-lock-banner" class="lock-banner" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Reporting year is locked after snapshot generation.
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <span class="card-title">Entry details</span>
+          <span class="badge badge-slate" id="consignment-disp">Consignment auto-assigned on save</span>
+        </div>
+        <div class="form-grid">
+          <div class="fg"><label>Waste / material category <span class="req">*</span></label>
+            <select id="e-cat" onchange="calcPreview()">
+              <option value="">Select category first...</option>
+              <option>Paper & Cardboard</option><option>Plastics</option><option>Organic / Food</option>
+              <option>Metal – Aluminium</option><option>Metal – Steel</option><option>Glass</option>
+              <option>E-waste / Electronics</option><option>Sanitary Waste</option><option>Hazardous</option>
+              <option>Mixed / MSW</option><option>Construction & Debris</option>
+              <option>Textile / Fabric</option><option>Rubber</option><option>Wood</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Source <span class="req">*</span></label>
+            <select id="e-source">
+              <option value="">Select source...</option>
+              <optgroup label="Educational">
+                <option>Classroom</option><option>Library</option><option>Laboratory</option>
+                <option>Cafeteria / Canteen</option><option>Hostel / Dormitory</option>
+                <option>Sports Ground</option><option>Administrative Office</option><option>Common Area</option>
+              </optgroup>
+              <optgroup label="Corporate / Industrial">
+                <option>Office Floor</option><option>Manufacturing Unit</option><option>Warehouse</option>
+                <option>Retail Floor</option><option>Data Centre</option><option>Pantry / Kitchen</option>
+                <option>R&D Lab</option><option>Loading Dock</option>
+              </optgroup>
+              <optgroup label="Shared / Other">
+                <option>Event / Conference</option><option>Parking / Outdoor</option>
+                <option>Medical / Clinic</option><option>Residential Colony</option><option>Other</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="fg"><label>Treatment method <span class="req">*</span></label>
+            <select id="e-treat" onchange="calcPreview();toggleLandfill()">
+              <option value="">Select treatment...</option>
+              <option>Recycled</option><option>Composted</option><option>Landfilled</option>
+              <option>Incinerated</option><option>Co-processed</option>
+            </select>
+          </div>
+          <div class="fg"><label>Weight (kg) <span class="req">*</span></label>
+            <input type="number" id="e-weight" min="0.001" step="0.001" placeholder="0.000" oninput="calcPreview()">
+          </div>
+          <div class="fg"><label>Collection date <span class="req">*</span></label>
+            <input type="date" id="e-date">
+          </div>
+          <div class="fg"><label>Processor / Recycler</label>
+            <select id="e-recycler"><option value="">Select processor (optional)...</option></select>
+          </div>
+          <div class="fg form-full"><label>Collector / vendor name</label>
+            <input id="e-vendor" placeholder="Name of collection agency or vendor (optional)">
+          </div>
+        </div>
+
+        <div class="calc-prev" id="calc-prev">
+          <div style="font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em">Calculated impact preview</div>
+          <div class="calc-grid">
+            <div class="calc-item"><label>CO₂e impact</label><div class="val" id="p-co2" style="color:var(--emerald)">—</div></div>
+            <div class="calc-item"><label>Water saved</label><div class="val" id="p-water" style="color:var(--sky)">—</div></div>
+            <div class="calc-item"><label>Trees equiv.</label><div class="val" id="p-trees" style="color:var(--amber)">—</div></div>
+            <div class="calc-item"><label>Standard</label><div style="font-size:12px;color:var(--ink3);margin-top:4px" id="p-std">—</div></div>
+          </div>
+        </div>
+
+        <div id="landfill-fields" style="display:none;margin-top:12px">
+          <div class="alert alert-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Landfill disposal requires a mandatory reason and evidence for BRSR compliance.</div>
+          <div class="form-grid">
+            <div class="fg"><label>Reason for landfill <span class="req">*</span></label><input id="e-lf-reason" placeholder="e.g. No certified recycler available for this material"></div>
+            <div class="fg"><label>Evidence / reference</label><input id="e-lf-evidence" placeholder="e.g. Vendor certificate no., gate pass no."></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="fg" style="margin-bottom:1rem">
+          <label>GPS tagged photo (optional)</label>
+          <div class="upload-zone" onclick="document.getElementById('photo-input').click()" id="upload-zone">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+            <p>Click to upload photo · JPG or PNG</p>
+            <p style="font-size:11px;margin-top:3px;color:var(--slate3)">Photo is tagged with consignment number and timestamp</p>
+            <input type="file" id="photo-input" accept="image/*" onchange="handlePhoto(this)">
+          </div>
+          <img id="photo-prev" class="photo-prev">
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-amber btn-sm" id="save-btn" onclick="saveEntry()">Save entry</button>
+          <button class="btn btn-sm btn-ghost" onclick="clearEntry()">Clear form</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">All entries</span><span class="card-sub" id="all-count"></span></div>
+        <div id="all-tbl"><div class="empty">No entries yet.</div></div>
+      </div>
+    </div>
+
+    <!-- EMISSION FACTORS -->
+    <div id="p-factors" class="page">
+      <div class="page-hdr">
+        <div class="page-hdr-l"><h2>Emission Factors</h2><p>GHG Protocol + MoEFCC CEF 2023 · IPCC 2019 fallback</p></div>
+        <div class="page-hdr-r" id="ef-master-badge" style="display:none"><span class="badge badge-amber">Editable — Master Admin only</span></div>
+      </div>
+      <div class="alert alert-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Unit: t CO₂e per tonne treated · Negative = emissions avoided · <span id="ef-hint">Values are read-only for your role.</span></div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Category</th><th>Recycled</th><th>Composted</th><th>Landfilled</th><th>Incinerated</th><th>Co-processed</th><th>Source</th></tr></thead>
+          <tbody id="factors-body"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: Client -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modal-client-title">Add new account</h3>
+      <button class="modal-close" onclick="closeModal('modal-client')">×</button>
+    </div>
+    <div class="alert alert-navy" id="modal-create-note" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>A Firebase login will be created automatically with the email and temporary password you set below.</div>
+    <div class="form-grid">
+      <div class="form-section-title">Role & Identity</div>
+      <div class="fg form-full"><label>Account / organisation type <span class="req">*</span></label>
+        <select id="c-type">
+          <option value="">Select type...</option>
+          <option>Educational Institution</option><option>Corporate Organisation</option>
+          <option>NGO</option><option>Government Body</option><option>Healthcare</option>
+          <option>Hospitality</option><option>Recycler / Processor</option><option>Composter</option><option>Aggregator</option>
+        </select>
+      </div>
+      <div class="fg"><label>Organisation / facility name <span class="req">*</span></label><input id="c-name" placeholder="e.g. Greenfield Academy"></div>
+      <div class="fg"><label>CIN (listed entities)</label><input id="c-cin" placeholder="L17110MH1973PLC019786 (optional)"></div>
+      <div class="fg"><label>Year of incorporation</label><input id="c-incorp" type="number" placeholder="e.g. 2005"></div>
+      <div class="fg"><label>Reporting year <span class="req">*</span></label>
+        <select id="c-year"><option>2024-2025</option><option>2025-2026</option><option>2023-2024</option><option>2022-2023</option></select>
+      </div>
+
+      <div class="form-section-title">Contact & Login</div>
+      <div class="fg"><label>Primary contact email <span class="req">*</span> (login ID)</label><input id="c-email" type="email" placeholder="admin@organisation.in"></div>
+      <div class="fg"><label>Temporary password <span class="req">*</span></label><input id="c-pass" type="password" placeholder="Min 6 characters"><div class="hint">Client should change on first login</div></div>
+      <div class="fg"><label>Primary contact name</label><input id="c-contact" placeholder="Full name"></div>
+      <div class="fg"><label>Contact designation</label><input id="c-designation" placeholder="e.g. Sustainability Head"></div>
+      <div class="fg"><label>Contact phone</label><input id="c-phone" placeholder="+91 98765 43210"></div>
+      <div class="fg"><label>Website</label><input id="c-website" placeholder="https://organisation.in"></div>
+
+      <div class="form-section-title">Address</div>
+      <div class="fg form-full"><label>Registered office address</label><input id="c-addr" placeholder="Street address"></div>
+      <div class="fg"><label>City <span class="req">*</span></label><input id="c-city" placeholder="e.g. Pune"></div>
+      <div class="fg"><label>State <span class="req">*</span></label>
+        <select id="c-state"><option value="">Select state...</option>
+          <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option>
+          <option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option>
+          <option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+          <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option>
+          <option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+          <option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+          <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option>
+          <option>Delhi</option><option>Jammu & Kashmir</option><option>Ladakh</option><option>Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Pincode</label><input id="c-pin" placeholder="411001" maxlength="6"></div>
+
+      <div class="form-section-title">BRSR & Scale (for listed entities)</div>
+      <div class="fg"><label>Financial year</label><select id="c-fy"><option>April–March</option><option>January–December</option><option>Other</option></select></div>
+      <div class="fg"><label>Stock exchange listed</label><select id="c-exchange"><option value="">Not listed</option><option>BSE</option><option>NSE</option><option>Both BSE & NSE</option></select></div>
+      <div class="fg"><label>Paid-up capital (₹ crore)</label><input id="c-capital" type="number" placeholder="0"></div>
+      <div class="fg"><label>Annual turnover (₹ crore)</label><input id="c-turnover" type="number" placeholder="0"></div>
+      <div class="fg"><label>Reporting boundary</label><select id="c-boundary"><option>Standalone</option><option>Consolidated</option></select></div>
+      <div class="fg"><label>Operational days / year</label><input id="c-opdays" type="number" placeholder="250"></div>
+
+      <div class="form-section-title">Workforce</div>
+      <div class="fg"><label>Permanent employees (M)</label><input id="c-emp-m" type="number" placeholder="0"></div>
+      <div class="fg"><label>Permanent employees (F)</label><input id="c-emp-f" type="number" placeholder="0"></div>
+      <div class="fg"><label>Employees with disability (PWD)</label><input id="c-emp-pwd" type="number" placeholder="0"></div>
+      <div class="fg"><label>Contract workers</label><input id="c-workers" type="number" placeholder="0"></div>
+      <div class="fg"><label>Students / residents (educational)</label><input id="c-students" type="number" placeholder="0"></div>
+
+      <div class="form-section-title">Waste Context</div>
+      <div class="fg"><label>Segregation practiced</label><select id="c-seg"><option>Yes</option><option>Partial</option><option>No</option></select></div>
+      <div class="fg"><label>Waste previously tracked?</label><select id="c-tracked"><option>No</option><option>Yes</option><option>Partially</option></select></div>
+      <div class="fg"><label>Current waste vendor</label><input id="c-vendor-name" placeholder="Existing waste management partner"></div>
+      <div class="fg"><label>Campus / facility area</label><input id="c-area" placeholder="e.g. 5 acres / 20,000 sq.ft"></div>
+    </div>
+    <input type="hidden" id="c-edit-id">
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="btn btn-amber btn-sm" id="save-client-btn" onclick="saveClient()">Save account</button>
+      <button class="btn btn-sm btn-ghost" onclick="closeModal('modal-client')">Cancel</button>
+      <button class="btn btn-rose btn-sm" id="reset-pass-btn" style="display:none;margin-left:auto" onclick="resetPassword()">Send password reset email</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Recycler -->
+<div class="modal-overlay" id="modal-recycler">
+  <div class="modal modal-sm">
+    <div class="modal-hdr"><h3>Register Processor</h3><button class="modal-close" onclick="closeModal('modal-recycler')">×</button></div>
+    <div class="form-grid">
+      <div class="fg"><label>Facility name <span class="req">*</span></label><input id="r-name" placeholder="e.g. GreenCycle Pvt Ltd"></div>
+      <div class="fg"><label>Processor type <span class="req">*</span></label>
+        <select id="r-type"><option value="">Select...</option><option>Recycler</option><option>Composter</option><option>Co-processor</option><option>Incineration facility</option><option>Landfill operator</option><option>Aggregator</option></select>
+      </div>
+      <div class="fg"><label>Contact email</label><input id="r-email" type="email" placeholder="contact@facility.in"></div>
+      <div class="fg"><label>Contact phone</label><input id="r-phone" placeholder="+91 98765 43210"></div>
+      <div class="fg"><label>City</label><input id="r-city" placeholder="e.g. Bengaluru"></div>
+      <div class="fg"><label>State</label><input id="r-state" placeholder="e.g. Karnataka"></div>
+      <div class="fg form-full"><label>Materials accepted</label><input id="r-materials" placeholder="e.g. Paper, Plastics, E-waste, Organic"></div>
+      <div class="fg form-full"><label>Certification / licence no. (CPCB / State Board)</label><input id="r-cert" placeholder="Certificate or authorisation number"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="btn btn-amber btn-sm" onclick="saveRecycler()">Save processor</button>
+      <button class="btn btn-sm btn-ghost" onclick="closeModal('modal-recycler')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Emission Factor -->
+<div class="modal-overlay" id="modal-ef">
+  <div class="modal modal-sm">
+    <div class="modal-hdr"><h3>Edit emission factor</h3><button class="modal-close" onclick="closeModal('modal-ef')">×</button></div>
+    <div class="alert alert-warn" style="margin-bottom:1rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Changes apply to new entries only. Historical data is preserved.</div>
+    <div class="fg" style="margin-bottom:1rem"><label id="ef-lbl">—</label><input type="number" id="ef-val" step="0.001"></div>
+    <input type="hidden" id="ef-cat"><input type="hidden" id="ef-treat">
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-amber btn-sm" onclick="saveEF()">Save factor</button>
+      <button class="btn btn-sm btn-ghost" onclick="closeModal('modal-ef')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, onSnapshot, query, orderBy, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const MASTER = 'shwetham@yujirplanet.com';
+const API_KEY = 'AIzaSyA55UvDQNPLwoiYC6Hxq1h2IJFLYmw-TAA';
+
+const fbApp = initializeApp({
+  apiKey:API_KEY,authDomain:"yujir-yccp.firebaseapp.com",projectId:"yujir-yccp",
+  storageBucket:"yujir-yccp.firebasestorage.app",messagingSenderId:"634097834756",
+  appId:"1:634097834756:web:8c9335e4ffc80f0774ce51"
+});
+const auth=getAuth(fbApp), db=getFirestore(fbApp), storage=getStorage(fbApp);
+
+// ── Emission Factors ──────────────────────────────────────────────────────────
+let EF={
+  'Paper & Cardboard':{Recycled:-0.82,Composted:null,Landfilled:1.06,Incinerated:1.30,'Co-processed':0.40,water:26500,src:'GHG Protocol / IPCC 2019'},
+  'Plastics':{Recycled:-1.54,Composted:null,Landfilled:0.09,Incinerated:2.09,'Co-processed':-0.20,water:0,src:'GHG Protocol'},
+  'Organic / Food':{Recycled:null,Composted:-0.58,Landfilled:0.85,Incinerated:0.50,'Co-processed':null,water:0,src:'IPCC 2019'},
+  'Metal – Aluminium':{Recycled:-9.10,Composted:null,Landfilled:0.03,Incinerated:null,'Co-processed':null,water:0,src:'GHG Protocol / MoEFCC 2023'},
+  'Metal – Steel':{Recycled:-1.50,Composted:null,Landfilled:0.03,Incinerated:null,'Co-processed':null,water:0,src:'GHG Protocol'},
+  'Glass':{Recycled:-0.31,Composted:null,Landfilled:0.003,Incinerated:null,'Co-processed':null,water:0,src:'IPCC defaults'},
+  'E-waste / Electronics':{Recycled:-2.00,Composted:null,Landfilled:0.50,Incinerated:null,'Co-processed':null,water:0,src:'Estimate – formal recycling'},
+  'Sanitary Waste':{Recycled:null,Composted:null,Landfilled:0.30,Incinerated:0.60,'Co-processed':null,water:0,src:'MoEFCC CEF 2023'},
+  'Hazardous':{Recycled:null,Composted:null,Landfilled:0.45,Incinerated:0.80,'Co-processed':null,water:0,src:'MoEFCC CEF 2023'},
+  'Mixed / MSW':{Recycled:-0.30,Composted:null,Landfilled:0.55,Incinerated:0.70,'Co-processed':0.20,water:0,src:'India avg – MoEFCC 2023'},
+  'Construction & Debris':{Recycled:-0.05,Composted:null,Landfilled:0.02,Incinerated:null,'Co-processed':null,water:0,src:'IPCC defaults'},
+  'Textile / Fabric':{Recycled:-3.10,Composted:null,Landfilled:0.34,Incinerated:1.02,'Co-processed':null,water:0,src:'GHG Protocol'},
+  'Rubber':{Recycled:-1.20,Composted:null,Landfilled:0.19,Incinerated:1.50,'Co-processed':null,water:0,src:'GHG Protocol'},
+  'Wood':{Recycled:-0.44,Composted:-0.10,Landfilled:0.23,Incinerated:0.82,'Co-processed':null,water:0,src:'IPCC 2019'},
+  'Other':{Recycled:-0.30,Composted:null,Landfilled:0.30,Incinerated:0.50,'Co-processed':null,water:0,src:'Estimate'}
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let S={
+  user:null,isMaster:false,orgId:null,orgData:null,
+  allOrgs:[],allEntries:{},entries:[],recyclers:[],
+  snapshotLocked:false,pdfData:null,photoFile:null,
+  dashFilter:'all',ovFilter:'all',
+  unsub:null,editClientId:null,verifierLink:null
+};
+let charts={};
+
+function calcEmission(cat,treat,kg){
+  const f=EF[cat];if(!f)return{co2:0,water:0,trees:0,factor:0,src:'—'};
+  const fv=f[treat];if(fv===null||fv===undefined)return{co2:0,water:0,trees:0,factor:0,src:'—'};
+  return{co2:+(Math.abs(fv)*kg).toFixed(4),water:+((f.water||0)*(kg/1000)).toFixed(2),
+    trees:+(cat==='Paper & Cardboard'?kg/41.7:0).toFixed(4),factor:fv,src:f.src||'GHG Protocol'};
+}
+function genCons(){return'YC-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*999999)).padStart(6,'0');}
+function today(){return new Date().toISOString().split('T')[0];}
+function fmt(d){if(!d)return'—';const[y,m,day]=d.split('-');const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${parseInt(day)} ${mn[parseInt(m)-1]} ${y}`;}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+const loadTO=setTimeout(()=>{document.getElementById('loading').style.display='none';document.getElementById('login').classList.add('show');},5000);
+onAuthStateChanged(auth,async user=>{
+  clearTimeout(loadTO);
+  document.getElementById('loading').style.display='none';
+  if(user){
+    S.user=user;S.isMaster=user.email===MASTER;
+    document.getElementById('login').classList.remove('show');
+    document.getElementById('app').classList.add('show');
+    document.getElementById('user-av').textContent=user.email.substring(0,2).toUpperCase();
+    document.getElementById('user-name').textContent=user.email;
+    setTodayDate();renderFactors();loadRecyclers();
+    if(S.isMaster){setupMaster();await loadAllData();}
+    else{await loadClientOrg(user.email);}
+    loadEFOverrides();
+  } else {
+    if(S.unsub){S.unsub();S.unsub=null;}
+    document.getElementById('app').classList.remove('show');
+    document.getElementById('login').classList.add('show');
+  }
+});
+
+window.doLogin=async function(){
+  const email=document.getElementById('l-email').value.trim(),pass=document.getElementById('l-pass').value;
+  const btn=document.getElementById('login-btn'),err=document.getElementById('login-err');
+  err.style.display='none';btn.disabled=true;btn.textContent='Signing in...';
+  try{await signInWithEmailAndPassword(auth,email,pass);}
+  catch(e){err.style.display='block';err.textContent=e.code==='auth/invalid-credential'?'Incorrect email or password.':e.message;}
+  finally{btn.disabled=false;btn.textContent='Sign in to YCCP';}
+};
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin();});
+window.doLogout=async()=>{await signOut(auth);};
+
+// ── Master Setup ──────────────────────────────────────────────────────────────
+function setupMaster(){
+  ['nav-overview','nav-clients','nav-recyclers'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='flex';});
+  document.getElementById('sec-master').style.display='block';
+  document.getElementById('sb-master-sel').style.display='block';
+  document.getElementById('ef-master-badge').style.display='flex';
+  document.getElementById('ef-hint').textContent='Click any value to edit (Master Admin only).';
+  const rt=document.getElementById('role-tag');rt.style.display='inline';rt.textContent='Master Admin';rt.className='role-tag rt-master';
+  document.getElementById('user-role-lbl').textContent='Super Admin';
+  nav('overview',document.getElementById('nav-overview'));
+}
+
+async function loadAllData(){
+  const snap=await getDocs(collection(db,'organisations'));
+  S.allOrgs=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderOrgSwitcher();renderOvOrgFilter();renderClients();renderOverview();
+  for(const org of S.allOrgs){
+    const es=await getDocs(query(collection(db,'organisations',org.id,'entries'),orderBy('date','desc')));
+    S.allEntries[org.id]=es.docs.map(d=>({id:d.id,...d.data()}));
+  }
+  renderOverview();
+}
+
+async function loadClientOrg(email){
+  const snap=await getDocs(query(collection(db,'organisations'),where('email','==',email)));
+  if(snap.empty){showToast('⚠ No organisation linked to this account. Contact admin.');return;}
+  const d=snap.docs[0];S.orgId=d.id;S.orgData={id:d.id,...d.data()};
+  const type=S.orgData.type||'';
+  const rt=document.getElementById('role-tag');rt.style.display='inline';rt.textContent=type||'Client';
+  if(type.includes('Recycler')||type.includes('Composter'))rt.className='role-tag rt-recycler';
+  else if(type.includes('Educational'))rt.className='role-tag rt-edu';
+  else rt.className='role-tag rt-org';
+  document.getElementById('user-role-lbl').textContent=S.orgData.name;
+  document.getElementById('sb-org').style.display='block';
+  document.getElementById('sb-org-name').textContent=S.orgData.name;
+  document.getElementById('sb-org-year').textContent='Reporting Year '+S.orgData.year;
+  startSync(S.orgId);
+  updateGreeting();
+}
+
+function renderOrgSwitcher(){
+  const sel=document.getElementById('org-select');
+  sel.innerHTML='<option value="">— All organisations —</option>'+S.allOrgs.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+}
+function renderOvOrgFilter(){
+  const sel=document.getElementById('ov-org-filter');if(!sel)return;
+  sel.innerHTML='<option value="">All organisations</option>'+S.allOrgs.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+}
+
+window.switchOrg=async function(){
+  const id=document.getElementById('org-select').value;
+  if(!id){S.orgId=null;S.orgData=null;document.getElementById('sb-org').style.display='none';return;}
+  const org=S.allOrgs.find(o=>o.id===id);if(!org)return;
+  S.orgId=id;S.orgData=org;
+  document.getElementById('sb-org').style.display='block';
+  document.getElementById('sb-org-name').textContent=org.name;
+  document.getElementById('sb-org-year').textContent='Reporting Year '+org.year;
+  startSync(id);updateGreeting();
+  if(!S.allEntries[id]){
+    const es=await getDocs(query(collection(db,'organisations',id,'entries'),orderBy('date','desc')));
+    S.allEntries[id]=es.docs.map(d=>({id:d.id,...d.data()}));
+  }
+  renderReports();
+};
+
+function startSync(orgId){
+  if(S.unsub){S.unsub();S.unsub=null;}
+  S.snapshotLocked=false;
+  resetSnapUI();
+  const q=query(collection(db,'organisations',orgId,'entries'),orderBy('date','desc'));
+  S.unsub=onSnapshot(q,snap=>{
+    S.entries=snap.docs.map(d=>({id:d.id,...d.data()}));
+    S.allEntries[orgId]=S.entries;
+    setDbStatus(true);
+    renderDashboard();renderEntries();renderReports();
+  },err=>{console.error(err);setDbStatus(false);});
+  getDoc(doc(db,'organisations',orgId,'settings','snapshot')).then(d=>{
+    if(d.exists()&&d.data().locked){
+      S.snapshotLocked=true;
+      document.getElementById('entry-lock-banner').style.display='flex';
+      document.getElementById('snap-status-badge').textContent='LOCKED';
+      document.getElementById('snap-status-badge').className='badge badge-rose';
+      document.getElementById('snap-done-msg').style.display='block';
+      document.getElementById('gen-snap-btn').style.display='none';
+      document.getElementById('dl-snap-btn').style.display='inline-flex';
+    }
+  });
+}
+
+function resetSnapUI(){
+  document.getElementById('entry-lock-banner').style.display='none';
+  document.getElementById('snap-status-badge').textContent='Draft';
+  document.getElementById('snap-status-badge').className='badge badge-amber';
+  document.getElementById('snap-done-msg').style.display='none';
+  document.getElementById('gen-snap-btn').style.display='inline-flex';
+  document.getElementById('dl-snap-btn').style.display='none';
+}
+
+function setDbStatus(on){
+  document.getElementById('db-dot').className='db-dot'+(on?'':' off');
+  document.getElementById('db-lbl').textContent=on?'Live':'Offline';
+}
+
+// ── Overview ──────────────────────────────────────────────────────────────────
+function getOvEntries(){
+  const orgF=document.getElementById('ov-org-filter')?.value||'';
+  let all=[];
+  for(const org of S.allOrgs){
+    if(orgF&&org.id!==orgF)continue;
+    all=all.concat(filtByDate(S.allEntries[org.id]||[],S.ovFilter));
+  }
+  return all;
+}
+
+function filtByDate(entries,filter){
+  const t=today(),m=t.slice(0,7),y=t.slice(0,4);
+  return entries.filter(e=>{
+    if(filter==='dtd')return e.date===t;
+    if(filter==='mtd')return e.date&&e.date.startsWith(m);
+    if(filter==='ytd')return e.date&&e.date.startsWith(y);
+    return true;
+  });
+}
+
+window.renderOverview=function(){
+  const all=getOvEntries();
+  const total=all.reduce((s,e)=>s+Number(e.kg||0),0);
+  const co2=all.reduce((s,e)=>s+Number(e.co2||0),0);
+  document.getElementById('ov-orgs').textContent=S.allOrgs.length;
+  document.getElementById('ov-total').textContent=total.toFixed(1);
+  document.getElementById('ov-co2').textContent=co2.toFixed(2);
+  const catT={};all.forEach(e=>{catT[e.cat]=(catT[e.cat]||0)+Number(e.kg||0);});
+  const catL=Object.keys(catT),catD=catL.map(l=>+catT[l].toFixed(2));
+  const pal=['#f59e0b','#0d9488','#0284c7','#7c3aed','#e11d48','#059669','#ea580c','#6366f1','#ec4899','#14b8a6'];
+  destroyChart('ov-cat');
+  const catEl=document.getElementById('ov-cat');
+  if(catEl&&catL.length)charts['ov-cat']=new Chart(catEl,{type:'doughnut',data:{labels:catL,datasets:[{data:catD,backgroundColor:pal.slice(0,catL.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10,padding:8}}}}});
+
+  destroyChart('ov-org-chart');
+  const orgEl=document.getElementById('ov-org-chart');
+  const orgN=S.allOrgs.map(o=>o.name.substring(0,14)+'…');
+  const orgCo2=S.allOrgs.map(o=>+filtByDate(S.allEntries[o.id]||[],S.ovFilter).reduce((s,e)=>s+Number(e.co2||0),0).toFixed(2));
+  if(orgEl&&orgN.length)charts['ov-org-chart']=new Chart(orgEl,{type:'bar',data:{labels:orgN,datasets:[{label:'CO₂e avoided (kg)',data:orgCo2,backgroundColor:'rgba(5,150,105,0.75)',borderColor:'#059669',borderWidth:1,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}}}}});
+};
+window.setOvF=function(f,btn){S.ovFilter=f;document.querySelectorAll('#p-overview .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOverview();};
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function updateGreeting(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':'h<17?Good afternoon':'Good evening';
+  const name=S.orgData?S.orgData.name.split(' ')[0]:'';
+  document.getElementById('dg-title').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+' '+name+' 👋';
+  document.getElementById('dg-sub').textContent=S.orgData?S.orgData.name+' · Reporting Year '+S.orgData.year:'Loading...';
+  document.getElementById('dg-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function renderDashboard(){
+  const e=filtByDate(S.entries,S.dashFilter);
+  const total=e.reduce((s,i)=>s+Number(i.kg||0),0);
+  const co2=e.reduce((s,i)=>s+Number(i.co2||0),0);
+  const water=e.reduce((s,i)=>s+Number(i.water||0),0);
+  const div=e.filter(i=>['Recycled','Composted','Co-processed'].includes(i.treat)).reduce((s,i)=>s+Number(i.kg||0),0);
+  document.getElementById('k-total').textContent=total.toFixed(1);
+  document.getElementById('k-div').textContent=total>0?((div/total)*100).toFixed(1)+'%':'0%';
+  document.getElementById('k-water').textContent=water.toFixed(0);
+  document.getElementById('dg-hero').textContent=co2.toFixed(2);
+
+  // Alerts
+  const alerts=[];
+  const daysSinceLast=S.entries.length>0?Math.floor((new Date()-new Date(S.entries[0].date))/(1000*60*60*24)):null;
+  if(S.entries.length===0)alerts.push({cls:'ac-warn',msg:'No entries yet — start tracking material to build your sustainability report'});
+  else if(daysSinceLast>14)alerts.push({cls:'ac-urgent',msg:`Last entry was ${daysSinceLast} days ago — consider logging recent collections`});
+  if(S.orgData){
+    const yr=S.orgData.year||'';
+    const endYear=parseInt((yr.split('-')[1]||'2025'));
+    const daysToYearEnd=Math.floor((new Date(endYear+'-03-31')-new Date())/(1000*60*60*24));
+    if(daysToYearEnd>0&&daysToYearEnd<45)alerts.push({cls:'ac-warn',msg:`Reporting year ends in ${daysToYearEnd} days — ensure all entries are complete`});
+    if(daysToYearEnd<0&&!S.snapshotLocked)alerts.push({cls:'ac-urgent',msg:'Reporting year has ended — generate your annual snapshot to lock and report'});
+  }
+  if(S.snapshotLocked)alerts.push({cls:'ac-ok',msg:'Snapshot generated — reporting year is locked and verified ✓'});
+  const alertsDiv=document.getElementById('alerts-area');
+  alertsDiv.innerHTML=alerts.length?alerts.map(a=>`<div class="alert-card ${a.cls}"><div class="ac-dot"></div><span>${a.msg}</span></div>`).join(''):`<div class="alert-card ac-ok"><div class="ac-dot"></div><span>All looks good — keep logging! ✓</span></div>`;
+
+  // Activity feed
+  const recent=S.entries.slice(0,6);
+  const feed=document.getElementById('activity-feed');
+  if(!recent.length){feed.innerHTML='<div class="empty" style="padding:1rem">No activity yet</div>';}
+  else feed.innerHTML=recent.map(i=>`<div class="activity-item">
+    <div class="ai-icon" style="background:${Number(i.factor)<0?'var(--emeraldbg)':'var(--rosebg)'};color:${Number(i.factor)<0?'var(--emerald)':'var(--rose)'}"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+    <div class="ai-content"><div class="ai-title">${i.kg} kg ${i.cat}</div><div class="ai-sub">${i.treat} · ${i.consignment||'—'}</div></div>
+    <div class="ai-time">${fmt(i.date)}</div>
+  </div>`).join('');
+
+  renderDashCharts(e);
+}
+
+window.setDashF=function(f,btn){
+  S.dashFilter=f;
+  document.querySelectorAll('#p-dashboard .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderDashboard();
+};
+
+function renderDashCharts(entries){
+  // Monthly trend
+  const months={};
+  entries.forEach(e=>{const m=e.date?e.date.slice(0,7):'';months[m]=(months[m]||0)+Number(e.kg||0);});
+  const mKeys=Object.keys(months).sort().slice(-12);
+  const mLabels=mKeys.map(k=>{const[y,m]=k.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(m)-1]+' '+y.slice(2);});
+  const mData=mKeys.map(k=>+months[k].toFixed(2));
+  destroyChart('dash-trend');
+  const tEl=document.getElementById('dash-trend');
+  if(tEl)charts['dash-trend']=new Chart(tEl,{type:'bar',data:{labels:mLabels.length?mLabels:['No data'],datasets:[{data:mData.length?mData:[0],backgroundColor:'rgba(245,158,11,0.7)',borderColor:'var(--amber)',borderWidth:1.5,borderRadius:6,label:'kg'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}}}}});
+
+  // Category donut
+  const catT={};entries.forEach(e=>{catT[e.cat]=(catT[e.cat]||0)+Number(e.kg||0);});
+  const catL=Object.keys(catT),catD=catL.map(l=>+catT[l].toFixed(2));
+  const pal=['#f59e0b','#0d9488','#0284c7','#7c3aed','#e11d48','#059669','#ea580c','#6366f1','#ec4899','#14b8a6','#f97316','#8b5cf6'];
+  destroyChart('dash-cat');
+  const cEl=document.getElementById('dash-cat');
+  if(cEl&&catL.length)charts['dash-cat']=new Chart(cEl,{type:'doughnut',data:{labels:catL,datasets:[{data:catD,backgroundColor:pal.slice(0,catL.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:8,padding:5}}}}});
+  else if(cEl)cEl.parentElement.innerHTML='<div class="empty" style="padding:1.5rem">No data yet</div>';
+
+  // Treatment bar
+  const treats=['Recycled','Composted','Landfilled','Incinerated','Co-processed'];
+  const tCols=['#059669','#0d9488','#e11d48','#f59e0b','#0284c7'];
+  const treatT={};entries.forEach(e=>{treatT[e.treat]=(treatT[e.treat]||0)+Number(e.kg||0);});
+  destroyChart('dash-treat');
+  const trEl=document.getElementById('dash-treat');
+  if(trEl&&entries.length)charts['dash-treat']=new Chart(trEl,{type:'bar',data:{labels:treats,datasets:[{data:treats.map(t=>+(treatT[t]||0).toFixed(2)),backgroundColor:tCols,borderWidth:0,borderRadius:6,label:'kg'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}}}}});
+  else if(trEl&&!entries.length)trEl.parentElement.innerHTML='<div class="empty" style="padding:1.5rem">No data yet</div>';
+}
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+// ── Reports ───────────────────────────────────────────────────────────────────
+function renderReports(){
+  if(!S.orgData){document.getElementById('report-lock').style.display='flex';return;}
+  document.getElementById('report-lock').style.display='none';
+  const e=S.entries;
+  const co2=e.reduce((s,i)=>s+Number(i.co2||0),0);
+  const water=e.reduce((s,i)=>s+Number(i.water||0),0);
+  const trees=e.reduce((s,i)=>s+Number(i.trees||0),0);
+  document.getElementById('snap-org').textContent=S.orgData.name;
+  document.getElementById('snap-yr').textContent='Reporting Year '+S.orgData.year;
+  document.getElementById('snap-co2').textContent=co2.toFixed(2);
+  document.getElementById('snap-water').textContent=water.toFixed(0);
+  document.getElementById('snap-trees').textContent=trees.toFixed(2);
+  S.pdfData={co2:co2.toFixed(2),water:water.toFixed(0),trees:trees.toFixed(2),entries:e,org:S.orgData};
+}
+
+window.generateSnapshot=async function(){
+  if(!S.entries.length){alert('Add at least 1 entry before generating.');return;}
+  if(!S.orgId){alert('No organisation selected.');return;}
+  const btn=document.getElementById('gen-snap-btn');btn.disabled=true;btn.textContent='Generating...';
+  try{
+    await setDoc(doc(db,'organisations',S.orgId,'settings','snapshot'),{locked:true,generatedAt:Timestamp.now(),generatedBy:S.user.email});
+    S.snapshotLocked=true;
+    document.getElementById('entry-lock-banner').style.display='flex';
+    document.getElementById('snap-status-badge').textContent='LOCKED';
+    document.getElementById('snap-status-badge').className='badge badge-rose';
+    document.getElementById('snap-done-msg').style.display='block';
+    btn.style.display='none';
+    document.getElementById('dl-snap-btn').style.display='inline-flex';
+    showToast('✓ Snapshot generated. Year locked.');
+  }catch(e){showToast('✗ Error: '+e.message);btn.disabled=false;btn.textContent='Generate PDF snapshot';}
+};
+
+window.downloadPDF=function(){
+  const d=S.pdfData;if(!d||!d.org){alert('No data to generate PDF. Ensure an organisation is selected.');return;}
+  const{jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,M=20;
+  pdf.setFillColor(15,23,41);pdf.rect(0,0,W,297,'F');
+  pdf.setFillColor(245,158,11);pdf.rect(0,0,5,297,'F');
+  pdf.setTextColor(245,158,11);pdf.setFontSize(8);pdf.setFont('helvetica','bold');
+  pdf.text('YUJIR PLANET COMPETENCIES',W/2,20,{align:'center'});
+  pdf.setTextColor(255,255,255);pdf.setFontSize(24);
+  pdf.text('Annual Sustainability Snapshot',W/2,38,{align:'center'});
+  pdf.setDrawColor(245,158,11);pdf.setLineWidth(0.3);pdf.line(M,44,W-M,44);
+  pdf.setTextColor(148,163,184);pdf.setFontSize(11);pdf.setFont('helvetica','normal');
+  pdf.text(d.org.name,W/2,52,{align:'center'});
+  pdf.setFontSize(8);pdf.text('Reporting Year: '+d.org.year,W/2,59,{align:'center'});
+  pdf.text('GHG Protocol + MoEFCC CEF 2023 · IPCC 2019',W/2,65,{align:'center'});
+  const kpis=[{l:'CO₂e Avoided',v:d.co2+' kg',c:[245,158,11]},{l:'Water Saved',v:d.water+' L',c:[56,189,248]},{l:'Trees Equiv.',v:d.trees,c:[134,239,172]}];
+  kpis.forEach((k,i)=>{
+    const x=M+(i*(W-2*M)/3)+2,bw=(W-2*M)/3-4;
+    pdf.setFillColor(22,32,64);pdf.roundedRect(x,72,bw,22,3,3,'F');
+    pdf.setDrawColor(...k.c);pdf.setLineWidth(0.3);pdf.roundedRect(x,72,bw,22,3,3,'S');
+    pdf.setTextColor(...k.c);pdf.setFontSize(13);pdf.setFont('helvetica','bold');
+    pdf.text(k.v,x+bw/2,82,{align:'center'});
+    pdf.setTextColor(148,163,184);pdf.setFontSize(7);pdf.setFont('helvetica','normal');
+    pdf.text(k.l,x+bw/2,89,{align:'center'});
+  });
+  // Org details
+  pdf.setTextColor(245,158,11);pdf.setFontSize(9);pdf.setFont('helvetica','bold');
+  pdf.text('ORGANISATION PROFILE',M,103);
+  pdf.setDrawColor(245,158,11);pdf.setLineWidth(0.2);pdf.line(M,105,W-M,105);
+  pdf.setTextColor(232,237,233);pdf.setFontSize(7);pdf.setFont('helvetica','normal');
+  const orgFields=[['Type',d.org.type||'—'],['City',d.org.city||'—'],['State',d.org.state||'—'],['Contact',d.org.contact||'—'],['Segregation',d.org.seg||'—'],['Employees',((parseInt(d.org.empM||0)+parseInt(d.org.empF||0))||'—')+'']];
+  let ox=M,oy=112;
+  orgFields.forEach((f,i)=>{
+    if(i%3===0&&i>0){ox=M;oy+=8;}
+    pdf.setTextColor(100,116,139);pdf.text(f[0]+':',ox,oy);pdf.setTextColor(232,237,233);pdf.text(f[1],ox+22,oy);
+    ox+=(W-2*M)/3;
+  });
+  // Entries
+  pdf.setTextColor(245,158,11);pdf.setFontSize(9);pdf.setFont('helvetica','bold');
+  pdf.text('MATERIAL ENTRY RECORDS',M,128);
+  pdf.setDrawColor(245,158,11);pdf.setLineWidth(0.2);pdf.line(M,130,W-M,130);
+  const hdr=['Consignment','Date','Category','kg','Treatment','CO₂e (kg)'];
+  const cw=[30,20,42,14,26,20];
+  let y=136,x2=M;
+  pdf.setFontSize(7);pdf.setFont('helvetica','bold');pdf.setTextColor(100,116,139);
+  hdr.forEach((h,i)=>{pdf.text(h,x2,y);x2+=cw[i];});
+  y+=2;pdf.setDrawColor(40,55,90);pdf.line(M,y,W-M,y);y+=4;
+  pdf.setFont('helvetica','normal');pdf.setTextColor(232,237,233);
+  d.entries.slice(0,25).forEach(e=>{
+    if(y>265){pdf.addPage();pdf.setFillColor(15,23,41);pdf.rect(0,0,W,297,'F');y=20;}
+    x2=M;
+    [e.consignment||'—',e.date,String(e.cat).substring(0,24),String(e.kg),e.treat,(Number(e.factor)<0?'−':'+')+Number(e.co2).toFixed(3)].forEach((v,i)=>{pdf.text(String(v),x2,y);x2+=cw[i];});
+    y+=5;pdf.setDrawColor(25,40,70);pdf.line(M,y-1,W-M,y-1);
+  });
+  if(d.entries.length>25){pdf.setTextColor(100,116,139);pdf.text(`... and ${d.entries.length-25} more entries`,M,y+4);}
+  const lp=pdf.internal.getCurrentPageInfo().pageNumber;
+  for(let i=1;i<=lp;i++){
+    pdf.setPage(i);pdf.setFillColor(10,18,35);pdf.rect(0,288,W,9,'F');
+    pdf.setTextColor(71,85,105);pdf.setFontSize(7);pdf.setFont('helvetica','normal');
+    pdf.text('YCCP · Yujir Planet Competencies · Confidential & Proprietary · GHG Protocol + MoEFCC CEF 2023',W/2,294,{align:'center'});
+    pdf.text('Page '+i+' of '+lp,W-M,294,{align:'right'});
+  }
+  pdf.save('YCCP_Snapshot_'+(d.org.name||'org').replace(/\s+/g,'_')+'_'+d.org.year+'.pdf');
+  showToast('✓ PDF downloaded');
+};
+
+// ── Verifier Link ─────────────────────────────────────────────────────────────
+window.genVerifierLink=async function(){
+  if(!S.orgId){alert('Select an organisation first.');return;}
+  const token=btoa(S.orgId+'|'+Date.now()+'|30d');
+  S.verifierLink=window.location.origin+'?verify='+token+'&org='+encodeURIComponent(S.orgData?.name||'');
+  document.getElementById('verifier-link').textContent=S.verifierLink;
+  await setDoc(doc(db,'organisations',S.orgId,'settings','verifier'),{token,createdAt:Timestamp.now(),createdBy:S.user.email,expiresIn:'30 days'});
+  showToast('✓ Verifier link generated');
+};
+window.copyVerifierLink=function(){
+  const link=document.getElementById('verifier-link').textContent;
+  if(link==='Generate link below'){alert('Generate the link first.');return;}
+  navigator.clipboard.writeText(link).then(()=>showToast('✓ Link copied to clipboard'));
+};
+
+// ── Verification Export ────────────────────────────────────────────────────────
+window.exportVerification=function(){
+  const e=S.entries;if(!e.length){alert('No entries to export.');return;}
+  const rows=e.map(i=>[
+    i.consignment||'—',i.date,i.source||'—',i.cat,i.kg,i.treat,
+    i.standard||'GHG Protocol',(Number(i.factor)<0?'−':'+')+Number(i.co2).toFixed(4),
+    Number(i.water).toFixed(2),Number(i.trees).toFixed(4),
+    i.recycler||'—',i.landfillReason||'—',i.landfillEvidence||'—',
+    i.photoURL?'Yes':'No',i.vendor||'—',i.createdBy||'—'
+  ].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const csv=`YCCP Verification Report\nOrganisation: ${S.orgData?.name||'—'}\nReporting Year: ${S.orgData?.year||'—'}\nStandard: GHG Protocol + MoEFCC CEF 2023\nGenerated: ${new Date().toLocaleString('en-IN')}\n\nConsignment,Date,Source,Category,Weight (kg),Treatment,Standard,CO2e (kg),Water (L),Trees,Processor,Landfill Reason,Landfill Evidence,Photo Attached,Vendor,Entered By\n${rows}`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='YCCP_Verification_'+(S.orgData?.name||'org').replace(/\s+/g,'_')+'_'+today()+'.csv';
+  a.click();showToast('✓ Verification report exported');
+};
+
+// ── CSV Export ────────────────────────────────────────────────────────────────
+window.exportCSV=function(){
+  const e=S.entries;if(!e.length){alert('No entries to export.');return;}
+  const rows=e.map(i=>`${i.consignment||''},${i.date},${i.source||''},"${i.cat}",${i.kg},${i.treat},${Number(i.factor)<0?'−':'+'}${Number(i.co2).toFixed(4)},${Number(i.water).toFixed(2)},${Number(i.trees).toFixed(4)},${i.recycler||''},${i.vendor||''}`).join('\n');
+  const csv=`Consignment,Date,Source,Category,Weight (kg),Treatment,CO2e (kg),Water (L),Trees,Processor,Vendor\n${rows}`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='YCCP_'+(S.orgData?.name||'entries').replace(/\s+/g,'_')+'_'+today()+'.csv';
+  a.click();showToast('✓ CSV exported');
+};
+
+// ── Entries ───────────────────────────────────────────────────────────────────
+function renderEntries(){
+  const e=S.entries;
+  document.getElementById('all-count').textContent=e.length+' records';
+  const tbl=document.getElementById('all-tbl');
+  if(!e.length){tbl.innerHTML='<div class="empty">No entries yet. Add your first material entry above.</div>';return;}
+  tbl.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Consignment</th><th>Date</th><th>Category</th><th>kg</th><th>Treatment</th><th>CO₂e</th><th>Water</th><th>Photo</th></tr></thead><tbody>'+
+    e.map(i=>`<tr><td style="font-family:monospace;font-size:11px;color:var(--navy)">${i.consignment||'—'}</td>
+      <td>${i.date}</td><td>${i.cat}</td><td>${i.kg}</td>
+      <td><span class="badge ${tBadge(i.treat)}">${i.treat}</span></td>
+      <td style="color:${Number(i.factor)<0?'var(--emerald)':'var(--rose)'};font-weight:500">${Number(i.factor)<0?'−':'+'}${Number(i.co2).toFixed(4)}</td>
+      <td>${Number(i.water).toFixed(1)} L</td>
+      <td>${i.photoURL?`<a href="${i.photoURL}" target="_blank" style="color:var(--sky);font-size:11px">📷 View</a>`:'—'}</td>
+    </tr>`).join('')+'</tbody></table></div>';
+}
+
+// ── Entry Form ────────────────────────────────────────────────────────────────
+function setTodayDate(){const el=document.getElementById('e-date');if(el)el.value=today();}
+
+window.calcPreview=function(){
+  const cat=document.getElementById('e-cat').value,treat=document.getElementById('e-treat').value;
+  const kg=parseFloat(document.getElementById('e-weight').value);
+  const prev=document.getElementById('calc-prev');
+  if(!cat||!treat||!kg||kg<=0){prev.style.display='none';return;}
+  const r=calcEmission(cat,treat,kg);prev.style.display='block';
+  document.getElementById('p-co2').textContent=(r.factor<0?'−':'+')+r.co2.toFixed(3)+' kg';
+  document.getElementById('p-water').textContent=r.water.toFixed(1)+' L';
+  document.getElementById('p-trees').textContent=r.trees>0?r.trees.toFixed(3)+' trees':'—';
+  document.getElementById('p-std').textContent=r.src;
+};
+
+window.toggleLandfill=function(){
+  const t=document.getElementById('e-treat').value;
+  document.getElementById('landfill-fields').style.display=t==='Landfilled'?'block':'none';
+};
+
+window.handlePhoto=function(input){
+  if(!input.files[0])return;
+  S.photoFile=input.files[0];
+  const reader=new FileReader();
+  reader.onload=e=>{const p=document.getElementById('photo-prev');p.src=e.target.result;p.style.display='block';};
+  reader.readAsDataURL(input.files[0]);
+};
+
+window.saveEntry=async function(){
+  if(S.snapshotLocked){alert('Reporting year is locked. No new entries permitted.');return;}
+  if(!S.orgId){alert('No organisation selected. Please contact admin.');return;}
+  const cat=document.getElementById('e-cat').value,treat=document.getElementById('e-treat').value;
+  const kg=parseFloat(document.getElementById('e-weight').value),date=document.getElementById('e-date').value;
+  const source=document.getElementById('e-source').value;
+  if(!cat||!treat||!kg||kg<=0||!date||!source){alert('Please fill: category, source, treatment, weight and date.');return;}
+  if(treat==='Landfilled'&&!document.getElementById('e-lf-reason').value.trim()){alert('Landfill disposal requires a mandatory reason for BRSR compliance.');return;}
+  const r=calcEmission(cat,treat,kg),cons=genCons();
+  const btn=document.getElementById('save-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    let photoURL=null;
+    if(S.photoFile){
+      const sr=sRef(storage,`entries/${S.orgId}/${cons}`);
+      await uploadBytes(sr,S.photoFile);photoURL=await getDownloadURL(sr);
+    }
+    await addDoc(collection(db,'organisations',S.orgId,'entries'),{
+      consignment:cons,source,cat,treat,kg,date,
+      co2:r.co2,water:r.water,trees:r.trees,factor:r.factor,standard:r.src,
+      vendor:document.getElementById('e-vendor').value,
+      recycler:document.getElementById('e-recycler').value,
+      landfillReason:document.getElementById('e-lf-reason')?.value||'',
+      landfillEvidence:document.getElementById('e-lf-evidence')?.value||'',
+      photoURL,createdAt:Timestamp.now(),createdBy:S.user.email
+    });
+    showToast('✓ '+cons+' saved · '+r.co2.toFixed(3)+' kg CO₂e');clearEntry();
+  }catch(e){showToast('✗ Save failed: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='Save entry';}
+};
+
+window.clearEntry=function(){
+  ['e-source','e-cat','e-treat','e-vendor','e-recycler'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['e-weight','e-lf-reason','e-lf-evidence'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('calc-prev').style.display='none';
+  document.getElementById('landfill-fields').style.display='none';
+  document.getElementById('photo-prev').style.display='none';
+  S.photoFile=null;setTodayDate();
+};
+
+// ── Clients ───────────────────────────────────────────────────────────────────
+window.openClientModal=function(editId){
+  S.editClientId=editId||null;
+  document.getElementById('modal-client-title').textContent=editId?'Edit account':'Add new account';
+  document.getElementById('modal-create-note').style.display=editId?'none':'flex';
+  document.getElementById('reset-pass-btn').style.display=editId?'inline-flex':'none';
+  document.getElementById('c-edit-id').value=editId||'';
+  const fields=['c-name','c-cin','c-incorp','c-email','c-pass','c-contact','c-designation','c-phone','c-website','c-addr','c-city','c-pin','c-capital','c-turnover','c-opdays','c-emp-m','c-emp-f','c-emp-pwd','c-workers','c-students','c-area','c-vendor-name'];
+  if(!editId){fields.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+  else{
+    const org=S.allOrgs.find(o=>o.id===editId);
+    if(org){
+      const map={name:'c-name',cin:'c-cin',incorp:'c-incorp',email:'c-email',contact:'c-contact',designation:'c-designation',phone:'c-phone',website:'c-website',addr:'c-addr',city:'c-city',pin:'c-pin',capital:'c-capital',turnover:'c-turnover',opdays:'c-opdays',empM:'c-emp-m',empF:'c-emp-f',empPwd:'c-emp-pwd',workers:'c-workers',students:'c-students',area:'c-area',vendorName:'c-vendor-name'};
+      Object.entries(map).forEach(([k,id])=>{const el=document.getElementById(id);if(el)el.value=org[k]||'';});
+      const selMap={type:'c-type',year:'c-year',state:'c-state',fy:'c-fy',exchange:'c-exchange',boundary:'c-boundary',seg:'c-seg',tracked:'c-tracked'};
+      Object.entries(selMap).forEach(([k,id])=>{const el=document.getElementById(id);if(el&&org[k])el.value=org[k];});
+    }
+  }
+  openModal('modal-client');
+};
+
+window.saveClient=async function(){
+  const name=document.getElementById('c-name').value.trim(),email=document.getElementById('c-email').value.trim();
+  const pass=document.getElementById('c-pass').value,editId=document.getElementById('c-edit-id').value;
+  const city=document.getElementById('c-city').value.trim(),state=document.getElementById('c-state').value;
+  if(!name||!email||!city||!state){alert('Name, email, city and state are required.');return;}
+  if(!editId&&!pass){alert('A temporary password is required for new accounts.');return;}
+  if(!editId&&pass.length<6){alert('Password must be at least 6 characters.');return;}
+  const btn=document.getElementById('save-client-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const getData=id=>document.getElementById(id)?.value||'';
+    const orgData={
+      name,email,type:getData('c-type'),year:getData('c-year'),cin:getData('c-cin'),incorp:getData('c-incorp'),
+      contact:getData('c-contact'),designation:getData('c-designation'),phone:getData('c-phone'),website:getData('c-website'),
+      addr:getData('c-addr'),city,state,pin:getData('c-pin'),
+      fy:getData('c-fy'),exchange:getData('c-exchange'),capital:getData('c-capital'),
+      turnover:getData('c-turnover'),boundary:getData('c-boundary'),opdays:getData('c-opdays'),
+      empM:getData('c-emp-m'),empF:getData('c-emp-f'),empPwd:getData('c-emp-pwd'),
+      workers:getData('c-workers'),students:getData('c-students'),
+      seg:getData('c-seg'),tracked:getData('c-tracked'),area:getData('c-area'),vendorName:getData('c-vendor-name'),
+      status:'ACTIVE',updatedAt:Timestamp.now()
+    };
+    if(editId){
+      await updateDoc(doc(db,'organisations',editId),orgData);
+      const idx=S.allOrgs.findIndex(o=>o.id===editId);
+      if(idx>=0)S.allOrgs[idx]={...S.allOrgs[idx],...orgData};
+      showToast('✓ Account updated: '+name);
+    } else {
+      const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email,password:pass,returnSecureToken:false})
+      });
+      const data=await res.json();
+      if(data.error)throw new Error(data.error.message);
+      orgData.createdAt=Timestamp.now();orgData.createdBy=S.user.email;
+      const ref=await addDoc(collection(db,'organisations'),orgData);
+      S.allOrgs.push({id:ref.id,...orgData});
+      showToast('✓ Account created for '+name+' · Login: '+email);
+    }
+    renderClients();renderOrgSwitcher();renderOvOrgFilter();closeModal('modal-client');
+  }catch(e){showToast('✗ Error: '+e.message);console.error(e);}
+  finally{btn.disabled=false;btn.textContent='Save account';}
+};
+
+window.resetPassword=async function(){
+  const email=document.getElementById('c-email').value.trim();
+  if(!email){alert('Email is required.');return;}
+  try{
+    await sendPasswordResetEmail(auth,email);
+    showToast('✓ Password reset email sent to '+email);
+  }catch(e){showToast('✗ Could not send reset email: '+e.message);}
+};
+
+function renderClients(){
+  const tbl=document.getElementById('clients-tbl');
+  if(!S.allOrgs.length){tbl.innerHTML='<div class="empty">No accounts yet.</div>';return;}
+  tbl.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Organisation</th><th>Type</th><th>City</th><th>State</th><th>Year</th><th>Entries</th><th>Status</th><th>Actions</th></tr></thead><tbody>'+
+    S.allOrgs.map(o=>`<tr>
+      <td><div style="font-weight:600">${o.name}</div><div style="font-size:11px;color:var(--ink3)">${o.email}</div></td>
+      <td style="font-size:12px">${o.type||'—'}</td>
+      <td style="font-size:12px">${o.city||'—'}</td>
+      <td style="font-size:12px">${o.state||'—'}</td>
+      <td>${o.year||'—'}</td>
+      <td>${(S.allEntries[o.id]||[]).length}</td>
+      <td><span class="badge badge-teal">Active</span></td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-xs" onclick="openClientModal('${o.id}')">Edit</button>
+        <button class="btn btn-xs btn-ghost" onclick="viewOrgData('${o.id}')">View</button>
+        <button class="btn btn-xs btn-rose" onclick="unlockOrgYear('${o.id}')">Unlock</button>
+      </div></td>
+    </tr>`).join('')+'</tbody></table></div>';
+}
+
+window.viewOrgData=function(id){document.getElementById('org-select').value=id;window.switchOrg();nav('dashboard',document.querySelector('.nav-item[onclick*=dashboard]'));};
+window.unlockOrgYear=async function(id){
+  if(!confirm('Unlock the reporting year for this organisation?'))return;
+  await setDoc(doc(db,'organisations',id,'settings','snapshot'),{locked:false,unlockedAt:Timestamp.now(),unlockedBy:S.user.email});
+  if(S.orgId===id)startSync(id);showToast('✓ Reporting year unlocked');renderClients();
+};
+
+// ── Recyclers ─────────────────────────────────────────────────────────────────
+async function loadRecyclers(){
+  const snap=await getDocs(collection(db,'recyclers'));
+  S.recyclers=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderRecyclers();updateRecyclerSelect();
+}
+function updateRecyclerSelect(){
+  const sel=document.getElementById('e-recycler');if(!sel)return;
+  sel.innerHTML='<option value="">Select processor (optional)...</option>'+
+    S.recyclers.map(r=>`<option value="${r.id}">${r.name} (${r.type||'—'})</option>`).join('');
+}
+window.openRecyclerModal=function(){openModal('modal-recycler');};
+window.saveRecycler=async function(){
+  const name=document.getElementById('r-name').value.trim(),type=document.getElementById('r-type').value;
+  if(!name||!type){alert('Name and type required.');return;}
+  try{
+    const ref=await addDoc(collection(db,'recyclers'),{
+      name,type,email:document.getElementById('r-email').value,phone:document.getElementById('r-phone').value,
+      city:document.getElementById('r-city').value,state:document.getElementById('r-state').value,
+      materials:document.getElementById('r-materials').value,cert:document.getElementById('r-cert').value,
+      createdAt:Timestamp.now()
+    });
+    S.recyclers.push({id:ref.id,name,type});
+    renderRecyclers();updateRecyclerSelect();closeModal('modal-recycler');
+    showToast('✓ Processor registered: '+name);
+  }catch(e){showToast('✗ Error: '+e.message);}
+};
+function renderRecyclers(){
+  const tbl=document.getElementById('recyclers-tbl');
+  if(!S.recyclers.length){tbl.innerHTML='<div class="empty">No processors registered yet.</div>';return;}
+  tbl.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Type</th><th>City</th><th>Materials</th><th>Cert no.</th></tr></thead><tbody>'+
+    S.recyclers.map(r=>`<tr><td><div style="font-weight:600">${r.name}</div><div style="font-size:11px;color:var(--ink3)">${r.email||''}</div></td>
+      <td><span class="badge badge-sky">${r.type||'—'}</span></td>
+      <td style="font-size:12px">${r.city||'—'}, ${r.state||'—'}</td>
+      <td style="font-size:11px;color:var(--ink3)">${r.materials||'—'}</td>
+      <td style="font-size:11px">${r.cert||'—'}</td></tr>`).join('')+'</tbody></table></div>';
+}
+
+// ── Emission Factors ──────────────────────────────────────────────────────────
+async function loadEFOverrides(){
+  const d=await getDoc(doc(db,'settings','emissionFactors'));
+  if(d.exists()&&d.data().factors){try{EF=JSON.parse(d.data().factors);renderFactors();}catch(e){}}
+}
+function renderFactors(){
+  const treats=['Recycled','Composted','Landfilled','Incinerated','Co-processed'];
+  document.getElementById('factors-body').innerHTML=Object.keys(EF).map(cat=>{
+    const f=EF[cat];
+    return`<tr><td style="font-weight:600;font-size:12px">${cat}</td>`+
+      treats.map(t=>{const v=f[t];if(v===null||v===undefined)return`<td class="ef-na">—</td>`;
+        const cls=v<0?'ef-neg':'ef-pos';
+        const editable=S.isMaster?`class="${cls} ef-editable" onclick="openEF('${cat}','${t}',${v})" title="Click to edit"`:`class="${cls}"`;
+        return`<td><span ${editable}>${v>0?'+':''}${v}</span></td>`;}).join('')+
+      `<td style="font-size:10px;color:var(--ink3)">${f.src}</td></tr>`;
+  }).join('');
+}
+window.openEF=function(cat,treat,current){
+  if(!S.isMaster)return;
+  document.getElementById('ef-lbl').textContent=cat+' — '+treat;
+  document.getElementById('ef-val').value=current;
+  document.getElementById('ef-cat').value=cat;
+  document.getElementById('ef-treat').value=treat;
+  openModal('modal-ef');
+};
+window.saveEF=async function(){
+  const cat=document.getElementById('ef-cat').value,treat=document.getElementById('ef-treat').value;
+  const val=parseFloat(document.getElementById('ef-val').value);
+  if(isNaN(val)){alert('Enter a valid number.');return;}
+  EF[cat][treat]=val;
+  await setDoc(doc(db,'settings','emissionFactors'),{factors:JSON.stringify(EF),updatedAt:Timestamp.now(),updatedBy:S.user.email});
+  renderFactors();closeModal('modal-ef');
+  showToast('✓ Factor updated: '+cat+' / '+treat+' = '+val);
+};
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+window.nav=function(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  if(id==='reports')renderReports();
+  if(id==='overview')renderOverview();
+  if(id==='clients')renderClients();
+  if(id==='recyclers')renderRecyclers();
+};
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+window.openModal=function(id){document.getElementById(id).classList.add('show');};
+window.closeModal=function(id){document.getElementById(id).classList.remove('show');};
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');});});
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function tBadge(t){
+  if(['Recycled','Composted','Co-processed'].includes(t))return'badge-teal';
+  if(t==='Landfilled')return'badge-rose';
+  return'badge-amber';
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);
+}
+</script>
+</body>
+</html>
