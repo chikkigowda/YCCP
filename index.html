@@ -961,10 +961,10 @@ async function loadAllData(){
   const snap=await getDocs(collection(db,'organisations'));
   S.allOrgs=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderOrgSwitcher();renderOvOrgFilter();renderClients();renderOverview();
-  for(const org of S.allOrgs){
+  await Promise.all(S.allOrgs.map(async org=>{
     const es=await getDocs(query(collection(db,'organisations',org.id,'entries'),orderBy('date','desc')));
     S.allEntries[org.id]=es.docs.map(d=>({id:d.id,...d.data()}));
-  }
+  }));
   renderOverview();
 }
 
@@ -1094,7 +1094,7 @@ window.setOvF=function(f,btn){S.ovFilter=f;document.querySelectorAll('#p-overvie
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 function updateGreeting(){
   const h=new Date().getHours();
-  const g=h<12?'Good morning':'h<17?Good afternoon':'Good evening';
+  
   const name=S.orgData?S.orgData.name.split(' ')[0]:'';
   document.getElementById('dg-title').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+' '+name+' 👋';
   document.getElementById('dg-sub').textContent=S.orgData?S.orgData.name+' · Reporting Year '+S.orgData.year:'Loading...';
