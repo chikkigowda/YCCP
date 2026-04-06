@@ -42,6 +42,8 @@ body{font-family:'Outfit',sans-serif;background:var(--slate6);color:var(--ink);m
 .login-left::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;border:1px solid rgba(245,158,11,0.08);top:-150px;right:-150px;}
 .login-left::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid rgba(245,158,11,0.06);top:-50px;right:-50px;}
 .ll-logo{display:flex;align-items:center;gap:12px;}
+.ll-mark{width:38px;height:38px;background:var(--amber);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.ll-mark svg{width:20px;height:20px;stroke:var(--navy);fill:none;stroke-width:2.5;}
 .ll-name{font-family:'Fraunces',serif;font-size:22px;color:var(--white);font-weight:600;}
 .ll-hero h1{font-family:'Fraunces',serif;font-size:38px;color:var(--white);line-height:1.15;margin-bottom:14px;}
 .ll-hero h1 em{color:var(--amber2);font-style:italic;}
@@ -82,6 +84,8 @@ body{font-family:'Outfit',sans-serif;background:var(--slate6);color:var(--ink);m
 /* TOPBAR */
 .topbar{grid-column:1/-1;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:100;}
 .tb-brand{display:flex;align-items:center;gap:10px;}
+.tb-mark{width:32px;height:32px;background:var(--amber);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.tb-mark svg{width:17px;height:17px;stroke:var(--navy);fill:none;stroke-width:2.5;}
 .tb-name{font-family:'Fraunces',serif;font-size:18px;color:var(--white);font-weight:600;}
 .tb-name span{color:var(--amber2);}
 .role-tag{font-size:10px;padding:2px 9px;border-radius:20px;font-weight:600;letter-spacing:0.04em;}
@@ -328,6 +332,7 @@ tbody tr:hover td{background:var(--slate6);}
 <div id="login">
   <div class="login-left">
     <div class="ll-logo">
+      <div class="ll-mark"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
       <div class="ll-name">YCCP</div>
     </div>
     <div class="ll-hero">
@@ -359,6 +364,7 @@ tbody tr:hover td{background:var(--slate6);}
 <div id="app">
   <div class="topbar">
     <div class="tb-brand">
+      <div class="tb-mark"><svg viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
       <div class="tb-name">YCC<span>P</span></div>
       <span class="role-tag" id="role-tag" style="display:none"></span>
     </div>
@@ -401,7 +407,7 @@ tbody tr:hover td{background:var(--slate6);}
     <div class="nav-item active" onclick="nav('dashboard',this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
     </div>
-    <div class="nav-item" id="nav-entry" onclick="nav('entry',this)">
+    <div class="nav-item" onclick="nav('entry',this)">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Material Entry
     </div>
     <div class="nav-item" onclick="nav('reports',this)">
@@ -462,9 +468,7 @@ tbody tr:hover td{background:var(--slate6);}
 
     <!-- DASHBOARD -->
     <div id="p-dashboard" class="page active">
-
-      <!-- Greeting banner -->
-      <div class="dash-greeting" id="dash-greeting" style="margin-bottom:14px">
+      <div class="dash-greeting" id="dash-greeting">
         <div class="dg-left">
           <h2 id="dg-title">Good morning 👋</h2>
           <p id="dg-sub">Loading your sustainability data...</p>
@@ -476,78 +480,36 @@ tbody tr:hover td{background:var(--slate6);}
         </div>
       </div>
 
-      <!-- Reporting year progress -->
-      <div class="card" style="padding:1rem 1.25rem;margin-bottom:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px;flex-wrap:wrap">
-          <div style="font-size:13px;font-weight:600;color:var(--ink)">Reporting Year Progress</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;color:var(--ink3)" id="yr-pct">—</span>
-            <span style="font-size:11px;color:var(--amber);font-weight:600" id="yr-days">—</span>
-            <span class="badge badge-amber" id="snap-yr-badge">Draft</span>
-          </div>
-        </div>
-        <div class="prog-bar"><div class="prog-fill" id="yr-bar-fill" style="width:0%"></div></div>
-      </div>
-
-      <!-- 4 KPIs -->
-      <div class="kpi-grid" style="margin-bottom:14px">
-        <div class="kpi teal"><div class="kpi-label">Total material tracked</div><div class="kpi-val" id="k-total">—</div><div class="kpi-unit">kg</div></div>
-        <div class="kpi amber"><div class="kpi-label">Diversion rate</div><div class="kpi-val" id="k-div">—</div><div class="kpi-unit">away from landfill</div></div>
-        <div class="kpi emerald"><div class="kpi-label">CO₂e avoided</div><div class="kpi-val" id="k-co2">—</div><div class="kpi-unit">kg CO₂ equivalent</div></div>
-        <div class="kpi sky"><div class="kpi-label">Entries logged</div><div class="kpi-val" id="k-entries">—</div><div class="kpi-unit">this reporting year</div></div>
-      </div>
-
-      <!-- Main grid -->
-      <div style="display:grid;grid-template-columns:1fr 300px;gap:14px">
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;margin-bottom:1.25rem">
         <div>
-          <!-- Waste stream coverage -->
-          <div class="card" style="margin-bottom:14px">
-            <div class="card-hdr">
-              <div>
-                <div class="card-title">Waste stream coverage</div>
-                <div class="card-sub">Categories documented — key for BRSR completeness</div>
-              </div>
-              <div style="text-align:right;flex-shrink:0">
-                <div style="font-family:'Fraunces',serif;font-size:24px;color:var(--emerald);line-height:1" id="cov-score">—</div>
-                <div style="font-size:10px;color:var(--ink3)">streams covered</div>
-              </div>
-            </div>
-            <div id="cat-coverage" style="margin-top:4px;line-height:2"></div>
+          <div class="filter-row">
+            <button class="filter-btn active" onclick="setDashF('all',this)">All time</button>
+            <button class="filter-btn" onclick="setDashF('ytd',this)">This year</button>
+            <button class="filter-btn" onclick="setDashF('mtd',this)">This month</button>
+            <button class="filter-btn" onclick="setDashF('dtd',this)">Today</button>
           </div>
-
-          <!-- Monthly trend -->
-          <div class="card" style="margin-bottom:0">
-            <div class="card-hdr">
-              <span class="card-title">Monthly material trend (kg)</span>
-              <div style="display:flex;gap:4px">
-                <button class="filter-btn active" style="padding:3px 10px;font-size:11px" onclick="setDashF('all',this)">All time</button>
-                <button class="filter-btn" style="padding:3px 10px;font-size:11px" onclick="setDashF('ytd',this)">This year</button>
-              </div>
-            </div>
+          <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+            <div class="kpi teal"><div class="kpi-label">Material tracked</div><div class="kpi-val" id="k-total">—</div><div class="kpi-unit">kg</div></div>
+            <div class="kpi amber"><div class="kpi-label">Diversion rate</div><div class="kpi-val" id="k-div">—</div><div class="kpi-unit">recycled + composted</div></div>
+            <div class="kpi emerald"><div class="kpi-label">Water saved</div><div class="kpi-val" id="k-water">—</div><div class="kpi-unit">litres</div></div>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-hdr"><span class="card-title">Monthly material trend</span><span class="card-sub" id="trend-sub">kg tracked per month</span></div>
             <div class="chart-wrap h180"><canvas id="dash-trend"></canvas></div>
           </div>
+          <div class="chart-grid-2" style="margin-bottom:0">
+            <div class="card" style="margin-bottom:0"><div class="card-hdr"><span class="card-title">By category</span></div><div class="chart-wrap h180"><canvas id="dash-cat"></canvas></div></div>
+            <div class="card" style="margin-bottom:0"><div class="card-hdr"><span class="card-title">Treatment split</span></div><div class="chart-wrap h180"><canvas id="dash-treat"></canvas></div></div>
+          </div>
         </div>
-
         <div>
-          <!-- Quick entry -->
-          <button class="btn btn-amber btn-block" style="padding:12px 18px;font-size:14px;margin-bottom:14px" onclick="nav('entry',document.getElementById('nav-entry'))">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Log new material entry
-          </button>
-
-          <!-- Action centre -->
           <div class="card" style="margin-bottom:14px">
-            <div class="card-hdr"><span class="card-title">Action centre</span></div>
+            <div class="card-hdr"><span class="card-title">Alerts & actions</span></div>
             <div id="alerts-area"><div class="empty" style="padding:1rem">All clear ✓</div></div>
           </div>
-
-          <!-- Recent entries -->
           <div class="card">
-            <div class="card-hdr">
-              <span class="card-title">Recent entries</span>
-              <button class="btn btn-xs btn-ghost" onclick="nav('entry',document.getElementById('nav-entry'))">View all</button>
-            </div>
-            <div id="activity-feed"><div class="empty" style="padding:1rem">No activity yet</div></div>
+            <div class="card-hdr"><span class="card-title">Recent activity</span></div>
+            <div id="activity-feed"><div class="empty" style="padding:1rem">No recent activity</div></div>
           </div>
         </div>
       </div>
@@ -899,7 +861,7 @@ tbody tr:hover td{background:var(--slate6);}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, doc, setDoc, getDoc, updateDoc, onSnapshot, query, orderBy, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+// Firebase Storage removed — photos stored as base64 in Firestore
 
 const MASTER = 'shwetham@yujirplanet.com';
 const API_KEY = 'AIzaSyA55UvDQNPLwoiYC6Hxq1h2IJFLYmw-TAA';
@@ -909,7 +871,7 @@ const fbApp = initializeApp({
   storageBucket:"yujir-yccp.firebasestorage.app",messagingSenderId:"634097834756",
   appId:"1:634097834756:web:8c9335e4ffc80f0774ce51"
 });
-const auth=getAuth(fbApp), db=getFirestore(fbApp), storage=getStorage(fbApp);
+const auth=getAuth(fbApp), db=getFirestore(fbApp);
 
 // ── Emission Factors ──────────────────────────────────────────────────────────
 let EF={
@@ -995,6 +957,19 @@ function setupMaster(){
   nav('overview',document.getElementById('nav-overview'));
 }
 
+// ── Client Setup ──────────────────────────────────────────────────────────────
+function setupClient(){
+  // Hide all master-only sidebar items
+  ['nav-overview','nav-clients','nav-recyclers','sec-master','sb-master-sel','ef-master-badge'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+  // Emission factors table is read-only for clients — hint is already set by default
+  const hint=document.getElementById('ef-hint');
+  if(hint)hint.textContent='Emission factors are set by YCCP. Contact your admin to request a change.';
+  // Land on Dashboard
+  nav('dashboard',document.querySelector('.nav-item[onclick*=dashboard]'));
+}
+
 async function loadAllData(){
   const snap=await getDocs(collection(db,'organisations'));
   S.allOrgs=snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -1019,6 +994,7 @@ async function loadClientOrg(email){
   document.getElementById('sb-org').style.display='block';
   document.getElementById('sb-org-name').textContent=S.orgData.name;
   document.getElementById('sb-org-year').textContent='Reporting Year '+S.orgData.year;
+  setupClient();
   startSync(S.orgId);
   updateGreeting();
 }
@@ -1143,65 +1119,31 @@ function renderDashboard(){
   const e=filtByDate(S.entries,S.dashFilter);
   const total=e.reduce((s,i)=>s+Number(i.kg||0),0);
   const co2=e.reduce((s,i)=>s+Number(i.co2||0),0);
-  const co2all=S.entries.reduce((s,i)=>s+Number(i.co2||0),0);
+  const water=e.reduce((s,i)=>s+Number(i.water||0),0);
   const div=e.filter(i=>['Recycled','Composted','Co-processed'].includes(i.treat)).reduce((s,i)=>s+Number(i.kg||0),0);
-
-  // KPIs
   document.getElementById('k-total').textContent=total.toFixed(1);
   document.getElementById('k-div').textContent=total>0?((div/total)*100).toFixed(1)+'%':'0%';
-  document.getElementById('k-co2').textContent=co2.toFixed(2);
-  document.getElementById('k-entries').textContent=e.length;
-  document.getElementById('dg-hero').textContent=co2all.toFixed(2);
+  document.getElementById('k-water').textContent=water.toFixed(0);
+  document.getElementById('dg-hero').textContent=co2.toFixed(2);
 
-  // Reporting year progress bar
-  if(S.orgData&&S.orgData.year){
-    const parts=S.orgData.year.split('-');
-    const startDate=new Date(parseInt(parts[0])+'-04-01');
-    const endDate=new Date(parseInt(parts[1])+'-03-31');
-    const now=new Date();
-    const totalDays=Math.floor((endDate-startDate)/(86400000));
-    const elapsed=Math.min(Math.max(Math.floor((now-startDate)/(86400000)),0),totalDays);
-    const pct=Math.round((elapsed/totalDays)*100);
-    const daysLeft=Math.max(0,Math.floor((endDate-now)/(86400000)));
-    document.getElementById('yr-bar-fill').style.width=pct+'%';
-    document.getElementById('yr-pct').textContent=pct+'% of year elapsed';
-    document.getElementById('yr-days').textContent=daysLeft>0?daysLeft+' days remaining':'Year ended';
-    if(S.snapshotLocked){
-      document.getElementById('snap-yr-badge').textContent='Locked';
-      document.getElementById('snap-yr-badge').className='badge badge-rose';
-    }
-  }
-
-  // Waste stream coverage
-  const allCats=['Paper & Cardboard','Plastics','Organic / Food','Metal – Aluminium','Metal – Steel','Glass','E-waste / Electronics','Sanitary Waste','Hazardous','Mixed / MSW','Construction & Debris','Textile / Fabric','Rubber','Wood','Other'];
-  const loggedCats=new Set(S.entries.map(i=>i.cat));
-  const covCount=allCats.filter(c=>loggedCats.has(c)).length;
-  document.getElementById('cov-score').textContent=covCount+'/'+allCats.length;
-  document.getElementById('cat-coverage').innerHTML=allCats.map(c=>{
-    const has=loggedCats.has(c);
-    const label=c.replace('Metal – ','').replace('Organic / Food','Organic').replace('Construction & Debris','C&D Debris').replace('E-waste / Electronics','E-waste');
-    return`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500;background:${has?'var(--emeraldbg)':'var(--slate5)'};color:${has?'var(--emerald)':'var(--slate3)'};border:1px solid ${has?'var(--emeraldborder)':'var(--slate4)'};margin:2px 2px"><span style="width:5px;height:5px;border-radius:50%;background:${has?'var(--emerald)':'var(--slate3)'};flex-shrink:0"></span>${label}</span>`;
-  }).join('');
-
-  // Action centre alerts
+  // Alerts
   const alerts=[];
-  const daysSinceLast=S.entries.length>0?Math.floor((new Date()-new Date(S.entries[0].date))/(86400000)):null;
-  if(S.entries.length===0)alerts.push({cls:'ac-warn',msg:'No entries yet — start logging material to build your BRSR report'});
-  else if(daysSinceLast>14)alerts.push({cls:'ac-urgent',msg:`Last entry was ${daysSinceLast} days ago — log recent collections to stay current`});
+  const daysSinceLast=S.entries.length>0?Math.floor((new Date()-new Date(S.entries[0].date))/(1000*60*60*24)):null;
+  if(S.entries.length===0)alerts.push({cls:'ac-warn',msg:'No entries yet — start tracking material to build your sustainability report'});
+  else if(daysSinceLast>14)alerts.push({cls:'ac-urgent',msg:`Last entry was ${daysSinceLast} days ago — consider logging recent collections`});
   if(S.orgData){
     const yr=S.orgData.year||'';
     const endYear=parseInt((yr.split('-')[1]||'2025'));
-    const daysToYearEnd=Math.floor((new Date(endYear+'-03-31')-new Date())/(86400000));
-    if(daysToYearEnd>0&&daysToYearEnd<45)alerts.push({cls:'ac-warn',msg:`Reporting year ends in ${daysToYearEnd} days — ensure all entries are complete before generating your snapshot`});
-    if(daysToYearEnd<0&&!S.snapshotLocked)alerts.push({cls:'ac-urgent',msg:'Reporting year ended — generate your annual snapshot now to lock and archive your data'});
+    const daysToYearEnd=Math.floor((new Date(endYear+'-03-31')-new Date())/(1000*60*60*24));
+    if(daysToYearEnd>0&&daysToYearEnd<45)alerts.push({cls:'ac-warn',msg:`Reporting year ends in ${daysToYearEnd} days — ensure all entries are complete`});
+    if(daysToYearEnd<0&&!S.snapshotLocked)alerts.push({cls:'ac-urgent',msg:'Reporting year has ended — generate your annual snapshot to lock and report'});
   }
-  if(S.snapshotLocked)alerts.push({cls:'ac-ok',msg:'Annual snapshot generated — reporting year is locked and audit-ready ✓'});
-  if(covCount>0&&covCount<4)alerts.push({cls:'ac-warn',msg:`Only ${covCount} waste stream${covCount===1?'':'s'} documented — verify if other material types apply to your operations`});
+  if(S.snapshotLocked)alerts.push({cls:'ac-ok',msg:'Snapshot generated — reporting year is locked and verified ✓'});
   const alertsDiv=document.getElementById('alerts-area');
-  alertsDiv.innerHTML=alerts.length?alerts.map(a=>`<div class="alert-card ${a.cls}" style="margin-bottom:6px"><div class="ac-dot"></div><span>${a.msg}</span></div>`).join(''):`<div class="alert-card ac-ok"><div class="ac-dot"></div><span>All looks good — keep logging! ✓</span></div>`;
+  alertsDiv.innerHTML=alerts.length?alerts.map(a=>`<div class="alert-card ${a.cls}"><div class="ac-dot"></div><span>${a.msg}</span></div>`).join(''):`<div class="alert-card ac-ok"><div class="ac-dot"></div><span>All looks good — keep logging! ✓</span></div>`;
 
-  // Recent entries feed
-  const recent=S.entries.slice(0,5);
+  // Activity feed
+  const recent=S.entries.slice(0,6);
   const feed=document.getElementById('activity-feed');
   if(!recent.length){feed.innerHTML='<div class="empty" style="padding:1rem">No activity yet</div>';}
   else feed.innerHTML=recent.map(i=>`<div class="activity-item">
@@ -1229,6 +1171,24 @@ function renderDashCharts(entries){
   destroyChart('dash-trend');
   const tEl=document.getElementById('dash-trend');
   if(tEl)charts['dash-trend']=new Chart(tEl,{type:'bar',data:{labels:mLabels.length?mLabels:['No data'],datasets:[{data:mData.length?mData:[0],backgroundColor:'rgba(245,158,11,0.7)',borderColor:'var(--amber)',borderWidth:1.5,borderRadius:6,label:'kg'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}}}}});
+
+  // Category donut
+  const catT={};entries.forEach(e=>{catT[e.cat]=(catT[e.cat]||0)+Number(e.kg||0);});
+  const catL=Object.keys(catT),catD=catL.map(l=>+catT[l].toFixed(2));
+  const pal=['#f59e0b','#0d9488','#0284c7','#7c3aed','#e11d48','#059669','#ea580c','#6366f1','#ec4899','#14b8a6','#f97316','#8b5cf6'];
+  destroyChart('dash-cat');
+  const cEl=document.getElementById('dash-cat');
+  if(cEl&&catL.length)charts['dash-cat']=new Chart(cEl,{type:'doughnut',data:{labels:catL,datasets:[{data:catD,backgroundColor:pal.slice(0,catL.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:9},boxWidth:8,padding:5}}}}});
+  else if(cEl)cEl.parentElement.innerHTML='<div class="empty" style="padding:1.5rem">No data yet</div>';
+
+  // Treatment bar
+  const treats=['Recycled','Composted','Landfilled','Incinerated','Co-processed'];
+  const tCols=['#059669','#0d9488','#e11d48','#f59e0b','#0284c7'];
+  const treatT={};entries.forEach(e=>{treatT[e.treat]=(treatT[e.treat]||0)+Number(e.kg||0);});
+  destroyChart('dash-treat');
+  const trEl=document.getElementById('dash-treat');
+  if(trEl&&entries.length)charts['dash-treat']=new Chart(trEl,{type:'bar',data:{labels:treats,datasets:[{data:treats.map(t=>+(treatT[t]||0).toFixed(2)),backgroundColor:tCols,borderWidth:0,borderRadius:6,label:'kg'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}}}}});
+  else if(trEl&&!entries.length)trEl.parentElement.innerHTML='<div class="empty" style="padding:1.5rem">No data yet</div>';
 }
 
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
@@ -1356,7 +1316,7 @@ window.exportVerification=function(){
     i.standard||'GHG Protocol',(Number(i.factor)<0?'−':'+')+Number(i.co2).toFixed(4),
     Number(i.water).toFixed(2),Number(i.trees).toFixed(4),
     i.recycler||'—',i.landfillReason||'—',i.landfillEvidence||'—',
-    i.photoURL?'Yes':'No',i.vendor||'—',i.createdBy||'—'
+    i.hasPhoto?'Yes':'No',i.vendor||'—',i.createdBy||'—'
   ].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const csv=`YCCP Verification Report\nOrganisation: ${S.orgData?.name||'—'}\nReporting Year: ${S.orgData?.year||'—'}\nStandard: GHG Protocol + MoEFCC CEF 2023\nGenerated: ${new Date().toLocaleString('en-IN')}\n\nConsignment,Date,Source,Category,Weight (kg),Treatment,Standard,CO2e (kg),Water (L),Trees,Processor,Landfill Reason,Landfill Evidence,Photo Attached,Vendor,Entered By\n${rows}`;
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
@@ -1386,7 +1346,7 @@ function renderEntries(){
       <td><span class="badge ${tBadge(i.treat)}">${i.treat}</span></td>
       <td style="color:${Number(i.factor)<0?'var(--emerald)':'var(--rose)'};font-weight:500">${Number(i.factor)<0?'−':'+'}${Number(i.co2).toFixed(4)}</td>
       <td>${Number(i.water).toFixed(1)} L</td>
-      <td>${i.photoURL?`<a href="${i.photoURL}" target="_blank" style="color:var(--sky);font-size:11px">📷 View</a>`:'—'}</td>
+      <td>${i.hasPhoto&&i.photoData?`<a href="${i.photoData}" target="_blank" style="color:var(--sky);font-size:11px">📷 View</a>`:(i.hasPhoto?'📷 Yes':'—')}</td>
     </tr>`).join('')+'</tbody></table></div>';
 }
 
@@ -1412,10 +1372,37 @@ window.toggleLandfill=function(){
 
 window.handlePhoto=function(input){
   if(!input.files[0])return;
-  S.photoFile=input.files[0];
+  const file=input.files[0];
+  if(file.size>5*1024*1024){alert('Photo must be under 5MB.');return;}
+  const MAX_PX=800,QUALITY=0.75;
   const reader=new FileReader();
-  reader.onload=e=>{const p=document.getElementById('photo-prev');p.src=e.target.result;p.style.display='block';};
-  reader.readAsDataURL(input.files[0]);
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>MAX_PX||h>MAX_PX){
+        if(w>h){h=Math.round(h*MAX_PX/w);w=MAX_PX;}
+        else{w=Math.round(w*MAX_PX/h);h=MAX_PX;}
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const b64=canvas.toDataURL('image/jpeg',QUALITY);
+      S.photoFile=b64;
+      const p=document.getElementById('photo-prev');
+      p.src=b64;p.style.display='block';
+      const kb=Math.round((b64.length*3)/4/1024);
+      if(kb>900){
+        showToast('⚠ Photo too large ('+kb+' KB). Try a smaller image.');
+        S.photoFile=null;p.style.display='none';
+        document.getElementById('photo-input').value='';
+        return;
+      }
+      showToast('📷 Photo ready · ~'+kb+' KB');
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
 };
 
 window.saveEntry=async function(){
@@ -1429,20 +1416,8 @@ window.saveEntry=async function(){
   const r=calcEmission(cat,treat,kg),cons=genCons();
   const btn=document.getElementById('save-btn');btn.disabled=true;btn.textContent='Saving...';
   try{
-    let photoURL=null;
-    if(S.photoFile){
-      if(S.photoFile.size>5*1024*1024){
-        showToast('⚠ Photo skipped — file must be under 5 MB');
-      } else {
-        try{
-          const sr=sRef(storage,`entries/${S.orgId}/${cons}`);
-          await uploadBytes(sr,S.photoFile);photoURL=await getDownloadURL(sr);
-        }catch(uploadErr){
-          console.error('Photo upload failed:',uploadErr);
-          showToast('⚠ Photo upload failed — entry will save without photo. Check CORS settings if this repeats.');
-        }
-      }
-    }
+    // Photo stored as base64 directly in Firestore — no Storage needed
+    const photoData=S.photoFile||null;
     await addDoc(collection(db,'organisations',S.orgId,'entries'),{
       consignment:cons,source,cat,treat,kg,date,
       co2:r.co2,water:r.water,trees:r.trees,factor:r.factor,standard:r.src,
@@ -1450,10 +1425,20 @@ window.saveEntry=async function(){
       recycler:document.getElementById('e-recycler').value,
       landfillReason:document.getElementById('e-lf-reason')?.value||'',
       landfillEvidence:document.getElementById('e-lf-evidence')?.value||'',
-      photoURL,createdAt:Timestamp.now(),createdBy:S.user.email
+      photoData,
+      hasPhoto:!!photoData,
+      createdAt:Timestamp.now(),createdBy:S.user.email
     });
-    showToast('✓ '+cons+' saved · '+r.co2.toFixed(3)+' kg CO₂e');clearEntry();
-  }catch(e){showToast('✗ Save failed: '+e.message);}
+    showToast('✓ '+cons+' saved'+(photoData?' · 📷 photo attached':'')+' · '+r.co2.toFixed(3)+' kg CO₂e');
+    clearEntry();
+  }catch(e){
+    console.error('Save failed:',e);
+    if(e.message&&e.message.includes('longer than')){
+      showToast('✗ Photo too large for storage. Try a smaller image and save again.');
+    } else {
+      showToast('✗ Save failed: '+e.message);
+    }
+  }
   finally{btn.disabled=false;btn.textContent='Save entry';}
 };
 
@@ -1463,7 +1448,11 @@ window.clearEntry=function(){
   document.getElementById('calc-prev').style.display='none';
   document.getElementById('landfill-fields').style.display='none';
   document.getElementById('photo-prev').style.display='none';
-  S.photoFile=null;setTodayDate();
+  const pi=document.getElementById('photo-input');if(pi)pi.value='';
+  S.photoFile=null;
+  const sb=document.getElementById('save-btn');
+  if(sb){sb.disabled=false;sb.textContent='Save entry';}
+  setTodayDate();
 };
 
 // ── Clients ───────────────────────────────────────────────────────────────────
@@ -1491,7 +1480,7 @@ window.saveClient=async function(){
   const name=document.getElementById('c-name').value.trim(),email=document.getElementById('c-email').value.trim();
   const pass=document.getElementById('c-pass').value,editId=document.getElementById('c-edit-id').value;
   const city=document.getElementById('c-city').value.trim(),state=document.getElementById('c-state').value;
-  if(!name||!email||!city||!state){alert('Name, email, city and state are required.');return;}
+  if(!name||!email){alert('Name and email are required.');return;}
   if(!editId&&!pass){alert('A temporary password is required for new accounts.');return;}
   if(!editId&&pass.length<6){alert('Password must be at least 6 characters.');return;}
   const btn=document.getElementById('save-client-btn');btn.disabled=true;btn.textContent='Saving...';
